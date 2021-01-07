@@ -26,7 +26,7 @@
 		},
 		currentvalue: {
 			font: {color: 'black'},
-			prefix: '			  ',
+			prefix: '			   ',
 			xanchor: "middle",
 			offset: -15
 		},
@@ -39,7 +39,8 @@
 	let featViz_layout = {
 		grid: {rows: num_features, columns: num_ticks, pattern: 'independent'},
 		showlegend:false,
-		sliders: []
+		sliders: [],
+		margin: {l:20, r:20, t:20, b:20}
 	};
 
 	config = {
@@ -75,7 +76,7 @@
 		for (var i = 0; i < num_features; i++) {
 			for (var j = 0; j < num_ticks; j++){
 				var id = i*num_features+j+1;
-				image = JSON.parse(data.img[id-1])
+				image = JSON.parse(data.image[id-1])
 				image = image.map( x => subtract_arr_from_1(x) )
 				var design = {
 					z: image,

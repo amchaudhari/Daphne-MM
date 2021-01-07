@@ -112,4 +112,34 @@
 
 		function updateNetwork() {}
 	}
+
+	function activeEdges(){
+		// Return 0 for inactive link and 1 for active link
+		var links = d3.selectAll('line.link')[0]
+		x = links.map(function(d) {
+			ret = d3.select(d).classed("hide")
+			ret = ret ? 0 : 1
+			return ret
+		})
+		return x
+	}
+	
+	document.getElementById("testDesign").addEventListener("click", onclickTest, false);
+	function onclickTest() {
+		x = activeEdges()
+		send_data = {
+			'x': x,
+			'z':''
+		}
+		if (sum(x) > 0) {
+			liveSend(send_data)
+		} else {
+			alert('Select atleast one link to test.')
+		}
+	}
+
+	document.getElementById("clearAll").addEventListener("click", onclickClear, false);
+	function onclickClear(){
+		d3.selectAll("line.link").classed('hide', true);
+	}
 }

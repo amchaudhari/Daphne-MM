@@ -7,14 +7,19 @@ import pickle as pickle
 
 
 class MyPage(Page):
+	live_method = 'live_design_evaluator'
+
+	timer_text = 'Time left to complete this part:'
+	def get_timeout_seconds(self):
+		return self.session.config['my_page_timeout_seconds']
 
 	def js_vars(self):
 		nodes = self.subsession.nodes()
 		edges = self.subsession.edges()
 		return dict(
-			data= self.session.vars,
-			nodes= nodes,
-			edges= edges
+			data = self.session.vars,
+			nodes = nodes,
+			edges = edges
 		)
 
 class ResultsWaitPage(WaitPage):

@@ -12,9 +12,10 @@
 # from multiobjective_rvar_nonlcon import multiobjective_rvar_nonlcon
 # from formK import formK
 
-__all__ = ['stiffness', 'volume_fraction', 'heuristics', 'multiobjectives']
+__all__ = ['stiffness', 'volume_fraction', 'heuristics', 'multiobjectives', 'show_mesh']
 
 from .stiffness import *
 from .volume_fraction import *
 from .heuristics import *
 from .multiobjectives import *
+from .show_mesh import *

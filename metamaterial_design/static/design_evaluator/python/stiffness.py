@@ -162,7 +162,7 @@ def generateC(sel,rvar,NC,CA,Avar,E,sidenum):
 			K_qr = newK[0:len(qvec),len(qvec):2*NC.shape[0]];
 			K_rr = newK[len(qvec):2*NC.shape[0], len(qvec):2*NC.shape[0]];
 			F_q = np.array(F_q, dtype='float'); u_r = np.array(u_r, dtype='float');
-			u_q = np.linalg.lstsq(K_qq, F_q-np.dot(K_qr,u_r) )[0]; 
+			u_q = np.linalg.lstsq(K_qq, F_q-np.dot(K_qr,u_r), rcond=None)[0]; 
 			F_r = np.dot(K_rq, u_q) + np.dot(K_rr, u_r);
 			altu = np.vstack([u_q, u_r]); altF = np.vstack([F_q, F_r]);
 			F = np.zeros((len(altF),1)); u = np.zeros((len(altu),1));
@@ -232,7 +232,7 @@ def generateC(sel,rvar,NC,CA,Avar,E,sidenum):
 			K_qr = newK[0:len(qvec),len(qvec):2*NC.shape[0]];
 			K_rr = newK[len(qvec):2*NC.shape[0], len(qvec):2*NC.shape[0]];
 			F_q = np.array(F_q, dtype='float'); u_r = np.array(u_r, dtype='float')
-			u_q = np.linalg.lstsq(K_qq, F_q-np.dot(K_qr,u_r) )[0]; 
+			u_q = np.linalg.lstsq(K_qq, F_q-np.dot(K_qr,u_r), rcond=None)[0]; 
 			F_r = np.dot(K_rq, u_q) + np.dot(K_rr, u_r);
 			altu = np.vstack([u_q, u_r]); altF = np.vstack([F_q, F_r]);
 			F = np.zeros((len(altF),1)); u = np.zeros((len(altu),1));

@@ -1,18 +1,19 @@
 from os import environ
 
 SESSION_CONFIGS = [
-    # dict(
-    #    name='public_goods',
-    #    display_name="Public Goods",
-    #    num_demo_participants=3,
-    #    app_sequence=['public_goods', 'payment_info']
-    # ),
-      dict(
-       name='metamaterial_design',
-       display_name="Metamaterial Design - HMI",
-       num_demo_participants=3,
-       app_sequence=['metamaterial_design']
-    ),
+		# dict(
+		#    name='public_goods',
+		#    display_name="Public Goods",
+		#    num_demo_participants=3,
+		#    app_sequence=['public_goods', 'payment_info']
+		# ),
+			dict(
+			name='metamaterial_design',
+			display_name="Metamaterial Design - HMI",
+			num_demo_participants=3,
+			app_sequence=['metamaterial_design'],
+			my_page_timeout_seconds=200*60
+		),
 ]
 
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
@@ -21,7 +22,7 @@ SESSION_CONFIGS = [
 # e.g. self.session.config['participation_fee']
 
 SESSION_CONFIG_DEFAULTS = dict(
-    real_world_currency_per_point=1.00, participation_fee=0.00, doc=""
+		real_world_currency_per_point=1.00, participation_fee=0.00, doc=""
 )
 
 # ISO-639 code

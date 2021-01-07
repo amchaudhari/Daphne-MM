@@ -1,8 +1,8 @@
 {% extends "global/Page.html" %}
 {% load otree static %}
 
-<!-- {% block title %}
-{% endblock %} -->
+{% block title %}
+{% endblock %}
 
 {% block scripts %}
 	<!-- Import stylesheet from local folder  -->
@@ -11,17 +11,17 @@
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 	<!-- jQuery library -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 	<!-- Latest compiled JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+	<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> -->
+	<!-- <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.js"></script> -->
 	<!-- Plotting scripts -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
 	<style>
 		.otree-title{
-		    padding-top: 20px;
+			padding-top: 0px;
 		}
 		.page-header{
 			margin: 0 0 0px;
@@ -31,12 +31,12 @@
 
 {% endblock %}
 
-{% block content %}		
+{% block content %}
 	
 	<!-- Tradespace Panel -->
 	<div class="panel panel-default">
-	  	<div class="panel-heading">Tradespace Visualization</div>
-	  	<div id="tsViz" style="width:700;height:400px;"></div>
+		<div class="panel-heading">Tradespace Visualization</div>
+		<div id="tsViz" style="width:700;height:400px;"></div>
 	</div>
 
 	<div class="row">
@@ -44,42 +44,67 @@
 		<div class="col-md">
 			<div class="panel panel-default">
 				<div class="panel-heading">Design Visualization</div>
-		  		<div id="desViz" style="width:400px;height:350px;float:center"></div>
+				<div id="desViz" style="width:400px;height:350px;float:center"></div>
 			</div>
 		</div>
 		<!-- Design Creation Panel -->
 		<div class="col-md">
 			<div class="panel panel-default">
 				<div class="panel-heading">Create New Metamaterial</div>
-		  		<div id="desCreat" style="width:400px;height:350px;">
-		  			<p style="text-align: center;"> <em> Click to Add & Double Click to Remove </em></p>
-		  		</div>
+				<button id="clearAll" type="button" class="btn btn-secondary btn-sm" style="float:right; position:relative; top:30px; right:10px">Clear All</button>
+				<div id="desCreat" style="width:400px;height:350px;">
+					<p style="text-align:center"> <em> Click to Add Link & Double-Click to Remove Link </em></p>
+				</div>
+				<button id="testDesign" type="button" class="btn btn-primary" style="float:right; position:relative; bottom:40px; right:10px">Test Design</button>
 			</div>
 		</div>
+
 	</div>
 
 	<!-- Feature Space Visualization -->
 	<div class="panel panel-default">
-	  	<div class="panel-heading">Feature-space Visualization</div>
-	  	<div id="featViz" style="width:700;height:400px;"></div>
+		<div class="panel-heading">Feature-space Visualization</div>
+		<div id="featViz" style="width:900;height:400px;"></div>
+		<button type="button" class="btn btn-primary" style="float:right; position:relative; bottom:40px; right:10px">Generate New Design & Test</button>
 	</div>
 
 	
 	<script> 
 		// data
-		var data = js_vars.data;
+		var data = js_vars.data; // Historic data; constant
 		var nodes = js_vars.nodes;
 		var edges = js_vars.edges;
-		num_features={{Constants.num_features}};
-		num_ticks={{Constants.num_ticks}};
+		const num_features= {{ Constants.num_features }};
+		const num_ticks= {{ Constants.num_ticks }};
+		const instructions_url = "{% static 'Instructions.html' %}"
+		
 
+		// New data
+		var response_data = {} // Responses calculated from design evaluator
+		var is_pareto_new = {} // New pareto information for historic data
+		function liveRecv(input) {
+			response_data = input['response_data']
+			is_pareto_new = input['is_pareto_new']
+		}
+		// Use liveSend to call live methods in python
+		// liveSend()
+
+
+		// Design (selected or generated) on display
+		var design_id = 9
+		var image = JSON.parse(data.image[design_id])
+		image = image.map( x => subtract_arr_from_1(x) )
+
+		// DOM elements
 		var desViz = document.getElementById('desViz');
 		var tsViz = document.getElementById('tsViz');
 		var featViz = document.getElementById('featViz');
 
+		// Loading javascripts
 		{% include "metamaterial_design/scripts/utils.js" %}
 
-		window.onload = function () { 
+		window.onload = function () {
+			{% include "metamaterial_design/components/timer.js" %} 
 			{% include "metamaterial_design/components/tradespace_visualization.js" %} 
 			{% include "metamaterial_design/components/design_visualization.js" %}
 			{% include "metamaterial_design/components/design_creation.js" %}
