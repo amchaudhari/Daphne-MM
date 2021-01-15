@@ -1,5 +1,7 @@
-# oTree-may-overwrite-this-file
-# IF YOU MODIFY THIS FILE, remove this comment.
-# otherwise, oTree will automatically overwrite it.
-otree>=3.2.3
+otree>=3.3.6
 psycopg2>=2.8.4
+numpy==1.18.5
+pandas==1.0.5
+tensorflow==2.3.1
+matplotlib==3.2.2
+PIL==7.2.0
