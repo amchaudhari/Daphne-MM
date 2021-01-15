@@ -1,5 +1,4 @@
 {
-	N = data.constr2.length
 	constr1_th=0.9
 	constr2_th=0.9
 
@@ -11,73 +10,64 @@
 		button_offset_1 = 0.22
 		button_offset_2 = 0.18
 
-	// marker setting
-	var normal_color = '#585858';
-		bright_color = '#00FFFF';
-		dull_color = '#e6e6e6';
-		design_color = 'red'
-	var orig_color = normal_color; //dummy variable to store color
-	var colors = Array.apply(null, new Array(N)).map(function(){return normal_color});
-
-	var big_size= "10";
-		small_size = "6";
-	var sizes = Array.apply(null, new Array(N)).map(function(){return small_size;})
-
-	var normal_symbol= "circle";
-		select_symbol = "cross-dot";
-	var symbols = Array.apply(null, new Array(N)).map(function(){return normal_symbol;})
-
-	// Selected design
-	colors[design_id]='red'
-	symbols[design_id]=select_symbol
-	sizes[design_id]=big_size
-
-	// Hover info
-	var hover_text = data.constr1.map(function(x,i){
-		return '<br>{{Constants.constraints.0}}: ' + x.toFixed(1) + '<br>{{Constants.constraints.1}}: ' +  data.constr2[i].toFixed(1) + '<br>Design #' + (i+1).toFixed(0)
-	});
-
 	function filter_points(x, th){
 		if (x > th) {
-			return normal_color
+			return 1 // Opacity of selected points
 		} else {
-			return dull_color
+			return 0.01
 		}
 	}
-	
-	
+
 	// Plotly graphs
 	var tradespace = {
 		x: data.obj1,
 		y: data.obj2,
-		text: hover_text,
+		text: get_hover_text(data, is_response=false),
 		colorscale: 'Hot',
 		mode: 'markers',
 		type: 'scatter',
+		name: 'Old designs',
 		marker:{size:sizes, color: colors, symbol:symbols, opacity:1},
 		hovertemplate: '{{Constants.objectives.0}}: %{x:.2f}' +
 					   '<br>{{Constants.objectives.1}}: %{y:.2f}' +
 					   '%{text}' + 
 					   '<extra></extra>',
-		showlegend: false,
+		showlegend: true,
 	  };
+
+	var tradespace_response = {
+		x: response_data.obj1,
+		y: response_data.obj2,
+		text: get_hover_text(response_data, is_response=true),
+		colorscale: 'Hot',
+		mode: 'markers',
+		type: 'scatter',
+		name: 'New designs',
+		marker:{size:big_size, color: 'red', symbol:response_symbol, opacity:1},
+		hovertemplate: '{{Constants.objectives.0}}: %{x:.2f}' +
+					   '<br>{{Constants.objectives.1}}: %{y:.2f}' +
+					   '%{text}' + 
+					   '<extra></extra>',
+		showlegend: true,
+	}
 
 	var pareto = {
 		x: data.obj1.filter((x,i) =>data.is_pareto[i]),
 		y: data.obj2.filter((x,i) =>data.is_pareto[i]),
 		mode: 'lines',
-		showlegend: false,
+		name: 'Best of old designs',
+		showlegend: true,
 		line: {"shape": 'vh', "dash": "dashdot", "color":'blue'},
 	}
 
-	var pareto_new = {
-		x: [data.obj1[design_id]],
-		y: [data.obj2[design_id]],
-		mode: 'markers',
-		type: 'scatter',
-		showlegend: false,
-		opacity: 0.75,
-		marker: {symbol:'cross', color: design_color, size: 10},
+	_pareto_response_data = pareto_response_data(data, response_data)
+	var pareto_response = {
+		x: _pareto_response_data.obj1,
+		y: _pareto_response_data.obj2,
+		name: 'Best of old + new designs',
+		mode: 'lines',
+		showlegend: true,
+		line: {"shape": 'vh', "dash": "dashdot", "color":'red'},
 	}
 
 	// Filter buttons 
@@ -112,22 +102,22 @@
 		{
 			buttons: [
 				{
-					args: ['marker.color', [colors]],
+					args: ['marker.opacity', 1],
 					label:'None',
 					method:'restyle'
 				},
 				{
-					args: ['marker.color', [ data.constr1.map( x => filter_points(x, constr1_th)) ]],
+					args: ['marker.opacity', [ data.constr1.map( x => filter_points(x, constr1_th)) ]],
 					label: 'Feasibility>'+constr1_th,
 					method: 'restyle'
 				},
 				{
-					args: ['marker.color', [ data.constr2.map(  x => filter_points(x, constr2_th)) ]],
+					args: ['marker.opacity', [ data.constr2.map(  x => filter_points(x, constr2_th)) ]],
 					label:'Stability>'+constr2_th,
 					method:'restyle'
 				},
 				{
-					args: ['marker.color', [ data.constr2.map(  (x,i) => filter_points( (x>constr2_th && data.constr1[i]> constr1_th) ? 1 : -1,  0)) ]],
+					args: ['marker.opacity', [ data.constr2.map(  (x,i) => filter_points( (x>constr2_th && data.constr1[i]> constr1_th) ? 1 : -1,  0)) ]],
 					label:'Both',
 					method:'restyle'
 				}
@@ -171,12 +161,12 @@
 		updatemenus: updatemenus,
 		annotations: annotations,
 		xaxis: {
-		   title: "{{Constants.objectives.0}}",
+		   title: "{{Constants.goals.0}}"+ " " + "{{Constants.objectives.0}}",
 		   // range: x_range,
 		   showgrid: true
 		},
 		yaxis: {
-		   title: "{{Constants.objectives.1}}",
+		   title: "{{Constants.goals.1}}" + " " +"{{Constants.objectives.1}}",
 		   // range: y_range,
 		   showgrid: true
 		},
@@ -185,10 +175,17 @@
 		   r:10,
 		   pad: 4
 		},
+		showlegend: true,
+		legend: {
+		   x: 1,
+		   xanchor: 'right',
+		   yanchor: 'top',
+		   y: 1.2
+		}
 	};
 
 	//div
-	Plotly.newPlot(tsViz, [tradespace, pareto], tsViz_layout, {displayModeBar: true, displaylogo: false});
+	Plotly.newPlot(tsViz, [tradespace, tradespace_response, pareto_response, pareto], tsViz_layout, {displayModeBar: true, displaylogo: false});
 	dragLayer = document.getElementsByClassName('nsewdrag')[0]
 
 	// Hover events
@@ -196,45 +193,51 @@
 		dragLayer.style.cursor = 'pointer'
 		
 		pt_number = d.points[0].pointNumber;
+		curveNumber = d.points[0].curveNumber;
 		
-		_colors = d.points[0].data.marker.color;
-		_colors[pt_number] = bright_color;
-		
-		// traceIndices does not seem to work
-		Plotly.restyle(tsViz, 'marker.color', [_colors]);
+		if (curveNumber === 0) {
+			_colors = d.points[0].data.marker.color;
+			_colors[pt_number] = bright_color;
+			
+			var update = {
+				'marker.color': [_colors]
+			}
+			Plotly.update(tsViz, update, {}, [curveNumber]);
+		}
 	})
 	.on('plotly_unhover', function(d){
 		dragLayer.style.cursor = ''
 		
 		pt_number = d.points[0].pointNumber;
+		curveNumber = d.points[0].curveNumber;
 		
-		_colors = d.points[0].data.marker.color;
-		_colors[pt_number] = normal_color;
-		_colors[design_id] = design_color;
-		
-		// traceIndices does not seem to work
-		// Plotly.restyle(tsViz, 'marker.color', [_colors]);
+		if (curveNumber === 0) {
+			_colors = d.points[0].data.marker.color;
+			_colors[pt_number] = normal_color;
+			if (selected_curve === 0) {
+				_colors[selected_point] = select_color;
+			}
+			
+			var update = {
+				'marker.color': [_colors]
+			}
+			Plotly.update(tsViz, update, {}, [curveNumber]);
+		}
 	});
 
 	// Onclick events
 	tsViz.on('plotly_click', function(d){
-		prev_design_id = design_id;
-		design_id = d.points[0].pointNumber; // New design id
-		restyle_desViz(design_id);
 
-		_colors = d.points[0].data.marker.color;
-		_colors[prev_design_id] = normal_color;
-		_colors[design_id] = design_color;
+		// Collect identity of the selected point
+		pointNumber = d.points[0].pointNumber; // New design id
+		curveNumber = d.points[0].curveNumber;
 
-		_symbols = d.points[0].data.marker.symbol;
-		_symbols[prev_design_id] = normal_symbol;
-		_symbols[design_id] = select_symbol;
-
-		_sizes = d.points[0].data.marker.size;
-		_sizes[prev_design_id] = small_size;
-		_sizes[design_id] = big_size;
-		// traceIndices does not seem to work
-		Plotly.restyle(tsViz, 'marker.symbol', [_symbols], 'marker.color', [_colors], 'marker.size', [_sizes]);
+		// Store which points are tested before this
+		if (curveNumber == 0) {
+			points_checked.push(pointNumber)
+		}
+		
+		changeSelectedDesign(curveNumber, pointNumber)
+	
 	});
-
 }

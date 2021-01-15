@@ -29,7 +29,8 @@ class Constants(BaseConstants):
 	players_per_group = None
 	num_rounds = 1
 	num_features = 10
-	num_ticks = 13
+	num_ticks = 11
+	feature_names = ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5", "Horizontal Lines",	"Vertical Lines",	"Diagonals", "Triangles", "Three Stars"]
 
 	E = 0.7e09; # Young's Modulus for polymeric material (example: 10000 Pa)
 	sel = 0.01; # Unit square side length (NOT individual truss length) (example: 5 cm)
@@ -44,6 +45,7 @@ class Constants(BaseConstants):
 	target_c_ratio = 1; # Ratio of C22/C11 to target
 
 	objectives = ['Stiffness', 'Volume Fraction']
+	goals = ['Maximize', 'Minimize']
 	constraints = ['Feasibility', 'Stability']
 
 class Subsession(BaseSubsession):
@@ -96,12 +98,20 @@ class Subsession(BaseSubsession):
 		if self.round_number == 1:
 			# Reading data #Columns = design stiffness	volume_fraction	feasibility	stability vertical_lines horizontal_lines	diagonals	triangles	three_stars	image
 			data = pd.read_csv("./metamaterial_design/static/metamaterial_designs_filtered.csv")
+			data = data.sort_values(['obj1', 'obj2'], ascending=[True, True])
 
 			# Adding pareto front information
 			costs = data[['obj1', 'obj2']].values*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
-			data['is_pareto'] = self.is_pareto_efficient(costs)
+			data['is_pareto'] = self.is_pareto_efficient(costs) 	# Pareto front of the historic data
+			for p in self.get_players():
+				player_id = p.id_in_subsession
+				data['is_pareto_response'+str(player_id)] = data['is_pareto']	# Pareto front after considering new responses evaluated by the designer
 			data['id'] = np.arange(data.shape[0])
 			self.session.vars = data.to_dict('list')
+
+			# Read feature figures
+			feature_images = np.genfromtxt("./metamaterial_design/static/feature_images.csv", delimiter=',')
+			self.session.vars['feature_images'] = json.dumps(feature_images.tolist())
 
 class Group(BaseGroup):
 	pass
@@ -125,6 +135,7 @@ class Player(BasePlayer):
 		# self.session.vars['is_pareto_new'] = ret[0:n_data].tolist()
 		is_pareto_new = ret[0:n_data].tolist()
 		self.participant.vars['is_pareto'] = ret[n_data:].tolist()
+		self.session.vars['is_pareto_response' + str(self.id_in_subsession)] = is_pareto_new
 		
 		return is_pareto_new
 
@@ -141,11 +152,12 @@ class Player(BasePlayer):
 		# x is a bitstring design vector
 		# z is a feature vector
 		x = np.array(data['x'])
-		z = np.array(data['z'])
+		z = np.array([data['z']])
+		points_checked = data['points_checked']
 
 		if ~np.any(np.isin(z, ['', None, 'nan'])):
 			x_img = self.subsession.decoder(z)
-			x = self.subsession.encoder_bitstring(x_img)
+			x = self.subsession.encoder_bitstring(x_img).numpy()[0]
 
 		if np.any(np.isin(x, ['', None, 'nan'])):
 			x = np.ones(Constants.edgelist.shape[0])
@@ -158,7 +170,7 @@ class Player(BasePlayer):
 		x_img = self.subsession.convert_to_img(x)
 		image = json.dumps(x_img.tolist())
 		design = json.dumps(x.tolist())
-		response = dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image, is_pareto=None)
+		response = dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image, is_pareto=None, points_checked=points_checked)
 		# Check if any element is int32
 		for k, v in response.items():
 			if isinstance(v, np.int32):
@@ -168,17 +180,21 @@ class Player(BasePlayer):
 		self.update_response_database(response)
 
 		# Update pareto information; Returns pareto infroamtion for historic data
-		is_pareto_new = self.update_pareto()
+		is_pareto_response = self.update_pareto()
 
 		# Retrive updated data rom database
 		response_data = self.participant.vars
 
-		return {self.id_in_group: dict(response_data=response_data, is_pareto_new=is_pareto_new)}
+		return {self.id_in_group: dict(response_data=response_data, is_pareto_response=is_pareto_response)}
 
 def custom_export(players):
 	# header row
-	yield ['session', 'participant_code', 'index', 'design', 'obj1', 'obj2', 'constr1', 'constr2', 'image']
+	yield ['session', 'participant_code', 'index', 'design', 'obj1', 'obj2', 'constr1', 'constr2', 'image', 'points_checked']
 	for p in players:
 		data = p.participant.vars
-		for index, d in data.items():
-			yield [p.session.code, p.participant.code, index, d['design'], d['obj1'], d['obj2'], d['constr1'], d['constr2'], d['image']]
+		if data:
+			n_data = len(data['design'])
+			print(data)
+			for i in range(n_data):
+				yield [p.session.code, p.participant.code, i, data['design'][i], data['obj1'][i], 
+						data['obj2'][i], data['constr1'][i], data['constr2'][i], data['image'][i], data['points_checked'][i]]

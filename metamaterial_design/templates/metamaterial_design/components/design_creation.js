@@ -129,7 +129,8 @@
 		x = activeEdges()
 		send_data = {
 			'x': x,
-			'z':''
+			'z':'',
+			'points_checked':points_checked
 		}
 		if (sum(x) > 0) {
 			liveSend(send_data)

@@ -18,8 +18,10 @@ class MyPage(Page):
 		edges = self.subsession.edges()
 		return dict(
 			data = self.session.vars,
+			response_data = self.participant.vars,
 			nodes = nodes,
-			edges = edges
+			edges = edges,
+			feature_names = Constants.feature_names
 		)
 
 class ResultsWaitPage(WaitPage):

@@ -52,6 +52,10 @@ function dominates(metrics1, metrics2, objective) {
 	return 0;
 }
 
+function around(num, n) {
+	return Math.round(num * Math.pow(10,n)) / Math.pow(10,n)
+}
+
 function sortWithIndeces(toSort) {
   for (var i = 0; i < toSort.length; i++) {
 	toSort[i] = [toSort[i], i];
@@ -59,12 +63,12 @@ function sortWithIndeces(toSort) {
   toSort.sort(function(left, right) {
 	return left[0] < right[0] ? -1 : 1;
   });
-  toSort.sortIndices = [];
+  sortIndices = [];
   for (var j = 0; j < toSort.length; j++) {
-	toSort.sortIndices.push(toSort[j][1]);
+	sortIndices.push(toSort[j][1]);
 	toSort[j] = toSort[j][0];
   }
-  return toSort;
+  return toSort, sortIndices;
 }
 
 function clamp(num, min, max) {
@@ -89,13 +93,65 @@ function horzcat(list){
 }
 
 function horzcat_2(a, b){
-	var c = a.map(function(el, i) {
-		return el.concat(b[i]);
-	});
+	var c = a.map(function (x, i) { return x.concat(b[i]) });
 	return c
+}
+
+function multiple_by_constant2D(arr2d, alpha) {
+	arr2d = arr2d.map(function(x) { return x.map(function(y) { return y * alpha; }); })
+	return arr2d
 }
 
 function sum(arr){
 	ret = arr.reduce((a, b) => a + b, 0)
 	return ret
+}
+
+function max_2arrays(arr1, arr2){
+	ret = arr1.map( function (x, i) {return Math.max(x, arr2[i]) } )
+	return ret
+}
+
+const deepCopyFunction = (inObject) => {
+  let outObject, value, key
+
+  if (typeof inObject !== "object" || inObject === null) {
+    return inObject // Return the value if inObject is not an object
+  }
+
+  // Create an array or object to hold the values
+  outObject = Array.isArray(inObject) ? [] : {}
+
+  for (key in inObject) {
+    value = inObject[key]
+
+    // Recursively (deep) copy for nested objects, including arrays
+    outObject[key] = deepCopyFunction(value)
+  }
+
+  return outObject
+}
+
+function stitch(arr1, arr2, n, axis) {
+	if (axis === 0){
+		a = arr1.slice(n)
+		b = arr2.slice(0,-1*n)
+		c = a.map(function (x,i) { return max_2arrays(a[i], b[i]) })
+
+		a1 = arr1.slice(0,n)
+		b1 = arr2.slice(-1*n)
+		ret = [].concat(a1, c, b1)
+		return ret
+	}
+	if (axis === 1){
+		a = arr1.map( function (x, i) { return x.slice(n) });
+		b = arr2.map( function (x, i) { return x.slice(0, -1*n) })
+		c = a.map(function (x,i) { return max_2arrays(a[i], b[i]) })
+
+		a1 = arr1.map( function (x, i) { return x.slice(0, n) });
+		b1 = arr2.map( function (x, i) { return x.slice(-1*n) });
+		ret = horzcat([a1, c, b1])
+
+		return ret
+	}
 }
