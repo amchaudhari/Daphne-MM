@@ -173,7 +173,7 @@ class Player(BasePlayer):
 		response = dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image, is_pareto=None, points_checked=points_checked)
 		# Check if any element is int32
 		for k, v in response.items():
-			if isinstance(v, np.int32):
+			if isinstance(v, np.int32) or isinstance(v, np.int64):
 				response[k] = int(v)
 
 		# Update databse and Check if pareto
