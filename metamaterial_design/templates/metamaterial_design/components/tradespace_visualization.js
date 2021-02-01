@@ -8,7 +8,7 @@
 	var button_layer_1_height = 1.2
 	 	button_layer_2_height = 1.05
 		button_offset_1 = 0.22
-		button_offset_2 = 0.18
+		button_offset_2 = 0.22
 
 	function filter_points(x, th){
 		if (x > th) {
@@ -60,6 +60,16 @@
 		line: {"shape": 'vh', "dash": "dashdot", "color":'blue'},
 	}
 
+	var pareto_invsible = {
+		x: data.obj1.filter((x,i) =>data.is_pareto[i]),
+		y: data.obj2.filter((x,i) =>data.is_pareto[i]),
+		mode: 'lines',
+		name: 'Best of old designs',
+		showlegend: false,
+		visible: true,
+		line: {"shape": 'vh', "dash": "dashdot", "color":'blue'},
+	}
+
 	_pareto_response_data = pareto_response_data(data, response_data)
 	var pareto_response = {
 		x: _pareto_response_data.obj1,
@@ -68,27 +78,60 @@
 		mode: 'lines',
 		showlegend: true,
 		line: {"shape": 'vh', "dash": "dashdot", "color":'red'},
+		fill: 'tonexty',
 	}
 
 	// Filter buttons 
 	var updatemenus=[
+		// {
+		// 	buttons: [
+		// 		// {
+		// 		// 	args: ['marker.opacity', 1 ],
+		// 		// 	label:'None',
+		// 		// 	method:'restyle'
+		// 		// },
+		// 		// {
+		// 		// 	args: ['marker.opacity', [data.constr1]],
+		// 		// 	label: '{{Constants.constraints.0}}',
+		// 		// 	method: 'restyle'
+		// 		// },
+		// 		// {
+		// 		// 	args: ['marker.opacity', [data.constr2]],
+		// 		// 	label:'{{Constants.constraints.1}}',
+		// 		// 	method:'restyle'
+		// 		// }
+		// 	],
+		// 	direction: 'left',
+		// 	// pad: {'r': 10, 't': 10},
+		// 	showactive: true,
+		// 	type: 'buttons',
+		// 	x: button_offset_1,
+		// 	xanchor: 'left',
+		// 	y: button_layer_1_height+0.02,
+		// 	yanchor: 'top'
+		// },
 		{
 			buttons: [
 				{
-					args: ['marker.opacity', 1 ],
+					args: [{'marker.opacity': 1}, [0]],
 					label:'None',
 					method:'restyle'
 				},
 				{
-					args: ['marker.opacity', [data.constr1]],
-					label: '{{Constants.constraints.0}}',
+					args: [{'marker.opacity': [ data.constr1.map( x => filter_points(x, constr1_th))] }, [0] ],
+					label: 'Feasibility=1',
 					method: 'restyle'
 				},
-				{
-					args: ['marker.opacity', [data.constr2]],
-					label:'{{Constants.constraints.1}}',
-					method:'restyle'
-				}
+				// {
+				// 	args: ['marker.opacity', [ data.constr2.map(  x => filter_points(x, constr2_th)) ]],
+				// 	label:'Stability>'+constr2_th,
+				// 	method:'restyle'
+				// },
+				// {
+				// 	args: ['marker.opacity', [ data.constr2.map(  (x,i) => filter_points( (x>constr2_th && data.constr1[i]> constr1_th) ? 1 : -1,  0)) ]],
+				// 	label:'Both',
+				// 	method:'restyle'
+				// }
 			],
 			direction: 'left',
 			// pad: {'r': 10, 't': 10},
@@ -100,42 +143,56 @@
 			yanchor: 'top'
 		},
 		{
-			buttons: [
-				{
-					args: ['marker.opacity', 1],
-					label:'None',
-					method:'restyle'
-				},
-				{
-					args: ['marker.opacity', [ data.constr1.map( x => filter_points(x, constr1_th)) ]],
-					label: 'Feasibility>'+constr1_th,
-					method: 'restyle'
-				},
-				{
-					args: ['marker.opacity', [ data.constr2.map(  x => filter_points(x, constr2_th)) ]],
-					label:'Stability>'+constr2_th,
-					method:'restyle'
-				},
-				{
-					args: ['marker.opacity', [ data.constr2.map(  (x,i) => filter_points( (x>constr2_th && data.constr1[i]> constr1_th) ? 1 : -1,  0)) ]],
-					label:'Both',
-					method:'restyle'
-				}
-			],
-			direction: 'left',
-			// pad: {'r': 10, 't': 10},
-			showactive: true,
-			type: 'buttons',
-			x: button_offset_2,
-			xanchor: 'left',
-			y: button_layer_2_height+0.02,
-			yanchor: 'top'
+				buttons: [
+					{
+						args: [{'marker.opacity': 1}, [1]],
+						label:'None',
+						method:'restyle'
+					},
+					{
+						args: [{'marker.opacity': 1 }, [1] ],
+						label: 'Feasibility=1',
+						method: 'restyle'
+					},
+					// {
+					// 	args: ['marker.opacity', [ data.constr2.map(  x => filter_points(x, constr2_th)) ]],
+					// 	label:'Stability>'+constr2_th,
+					// 	method:'restyle'
+					// },
+					// {
+					// 	args: ['marker.opacity', [ data.constr2.map(  (x,i) => filter_points( (x>constr2_th && data.constr1[i]> constr1_th) ? 1 : -1,  0)) ]],
+					// 	label:'Both',
+					// 	method:'restyle'
+					// }
+				],
+				direction: 'left',
+				// pad: {'r': 10, 't': 10},
+				showactive: true,
+				type: 'buttons',
+				x: button_offset_2,
+				xanchor: 'left',
+				y: button_layer_2_height+0.02,
+				yanchor: 'top'
 		}
 	]
 
+	if (Object.keys(response_data).length > 0) {
+		updatemenus[1].buttons[1].args = [{'marker.opacity': [ response_data.constr1.map( x => filter_points(x, constr1_th))] }, [1] ];
+	}
+
 	var annotations = [
+		// {
+		//   	text: 'Colorscale by:',
+		//   	x: 0.08,
+		//   	y: button_layer_1_height,
+		//   	xref: 'paper',
+		//   	yref: 'paper',
+		//   	align: 'left',
+		//   	showarrow: false,
+		//   	font: {size: 14},
+		// },
 		{
-		  	text: 'Colorscale by Constraint:',
+		  	text: 'Filter Old Designs by:',
 		  	x: 0,
 		  	y: button_layer_1_height,
 		  	xref: 'paper',
@@ -145,7 +202,7 @@
 		  	font: {size: 14},
 		},
 		{
-		  	text: 'Filter by Constraint:',
+		  	text: 'Filter New Designs by:',
 		  	x: 0,
 		  	y: button_layer_2_height,
 		  	xref: 'paper',
@@ -153,7 +210,7 @@
 		  	align: 'left',
 		  	showarrow: false,
 		  	font: {size: 14},
-		},
+		}
 	]
 
 	var tsViz_layout = {
@@ -161,12 +218,12 @@
 		updatemenus: updatemenus,
 		annotations: annotations,
 		xaxis: {
-		   title: "{{Constants.goals.0}}"+ " " + "{{Constants.objectives.0}}",
+		   title: goals[0] + " " + "{{Constants.objectives.0}}",
 		   // range: x_range,
 		   showgrid: true
 		},
 		yaxis: {
-		   title: "{{Constants.goals.1}}" + " " +"{{Constants.objectives.1}}",
+		   title: goals[1] + " " +"{{Constants.objectives.1}}",
 		   // range: y_range,
 		   showgrid: true
 		},
@@ -177,15 +234,18 @@
 		},
 		showlegend: true,
 		legend: {
-		   x: 1,
+		   x: 1.1,
 		   xanchor: 'right',
 		   yanchor: 'top',
 		   y: 1.2
 		}
 	};
 
+	// Plot config of tradespace plot
+	tsViz_config = tsViz_config || {displayModeBar: true, displaylogo: false, modeBarButtonsToRemove: ['toImage', 'select2d', 'lasso2d']}
+
 	//div
-	Plotly.newPlot(tsViz, [tradespace, tradespace_response, pareto_response, pareto], tsViz_layout, {displayModeBar: true, displaylogo: false});
+	Plotly.newPlot(tsViz, [tradespace, tradespace_response, pareto_invsible, pareto_response, pareto], tsViz_layout, tsViz_config);
 	dragLayer = document.getElementsByClassName('nsewdrag')[0]
 
 	// Hover events

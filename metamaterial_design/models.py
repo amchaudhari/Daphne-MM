@@ -28,7 +28,7 @@ class Constants(BaseConstants):
 	name_in_url = 'metamaterial_design'
 	players_per_group = None
 	num_rounds = 1
-	num_features = 10
+	num_features = 5
 	num_ticks = 11
 	feature_names = ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5", "Horizontal Lines",	"Vertical Lines",	"Diagonals", "Triangles", "Three Stars"]
 
@@ -44,14 +44,28 @@ class Constants(BaseConstants):
 	pos = truss_model.generateNC(sel, sidenum);
 	target_c_ratio = 1; # Ratio of C22/C11 to target
 
-	objectives = ['Stiffness', 'Volume Fraction']
-	goals = ['Maximize', 'Minimize']
+	objectives = ['Vertical stiffness', 'Volume Fraction']
 	constraints = ['Feasibility', 'Stability']
+
+	choices_sa_test = ['Strongly agree', 'Agree', 'Undecided', 'Diagree', 'Strongly diagree']
 
 class Subsession(BaseSubsession):
 
-	decoder = tf.keras.models.load_model('metamaterial_design/static/decoder.h5')
+	decoder = tf.keras.models.load_model('metamaterial_design/static/bvae_decoder.h5')
 	encoder_bitstring = tf.keras.models.load_model('metamaterial_design/static/encoder_bitstring.h5')
+
+	def get_goals(self):
+		if self.session.config['performance_goal'] == 0:
+			return ['Maximize', 'Minimize']
+		else:
+			return ['', '']
+
+	def get_instruction_url(self):
+		if self.session.config['performance_goal'] == 0:
+			instruction_url="metamaterial_design/instructions_performance.html"
+		else:
+			instruction_url="metamaterial_design/instructions_learning.html"
+		return instruction_url
 
 	def nodes(self):
 		pos = Constants.pos
@@ -99,45 +113,122 @@ class Subsession(BaseSubsession):
 			# Reading data #Columns = design stiffness	volume_fraction	feasibility	stability vertical_lines horizontal_lines	diagonals	triangles	three_stars	image
 			data = pd.read_csv("./metamaterial_design/static/metamaterial_designs_filtered.csv")
 			data = data.sort_values(['obj1', 'obj2'], ascending=[True, True])
+			n_data = data.shape[0]
 
 			# Adding pareto front information
 			costs = data[['obj1', 'obj2']].values*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
-			data['is_pareto'] = self.is_pareto_efficient(costs) 	# Pareto front of the historic data
+			# Check if feasibility constraint is satisfied
+			is_constr1 = data['constr1'] == 1
+			ret = self.is_pareto_efficient(costs[is_constr1])	# Pareto front of the historic data
+			data['is_pareto'] = np.zeros((n_data,)).astype(bool)
+			data['is_pareto'][is_constr1] = ret
 			for p in self.get_players():
 				player_id = p.id_in_subsession
 				data['is_pareto_response'+str(player_id)] = data['is_pareto']	# Pareto front after considering new responses evaluated by the designer
 			data['id'] = np.arange(data.shape[0])
 			self.session.vars = data.to_dict('list')
 
-			# Read feature figures
-			feature_images = np.genfromtxt("./metamaterial_design/static/feature_images.csv", delimiter=',')
-			self.session.vars['feature_images'] = json.dumps(feature_images.tolist())
+	def get_feature_images(self):
+		# Read feature figures
+		feature_images = pd.read_csv("./metamaterial_design/static/feature_images.csv", delimiter=',')
+		return feature_images.values.tolist()
+
+	def get_design_tests(self):
+		# Read designs related to design comparison tests
+		images_dc_test = pd.read_csv("./metamaterial_design/static/design_comparison_tests.csv", delimiter=',')
+		images_dc_test = images_dc_test.to_dict('list')['image']
+
+		# Read designs related to design identification tests
+		images_di_test = pd.read_csv("./metamaterial_design/static/design_identification_tests.csv", delimiter=',')
+		images_di_test = images_di_test.to_dict('list')['image']
+
+		return images_dc_test, images_di_test
+
+	def get_design_pretests(self):
+		# Read designs related to design comparison tests
+		images_pre = pd.read_csv("./metamaterial_design/static/design_pretests.csv", delimiter=',')
+		images_pre = images_pre.to_dict('list')['image']
+
+		return images_pre
+
+	def get_design_test_answers(self):
+		# Read designs related to design comparison tests
+		dc_test_answers = pd.read_csv("./metamaterial_design/static/design_comparison_answers.csv", delimiter=',')
+		dc_test_answers = dc_test_answers.to_dict('list')['answers']
+
+		# Read designs related to design identification tests
+		di_test_answers = pd.read_csv("./metamaterial_design/static/design_identification_answers.csv", delimiter=',')
+		di_test_answers = di_test_answers.to_dict('list')['answers']
+
+		return di_test_answers + dc_test_answers 
+
+	def get_feature_tests(self):
+		# Read features related to feature comparison tests
+		images_fc_test = pd.read_csv("./metamaterial_design/static/feature_comparison_tests.csv", delimiter=',')
+		images_fc_test = images_fc_test.values.tolist()
+
+		# Read features related to feature identification tests
+		images_fi_test = pd.read_csv("./metamaterial_design/static/feature_identification_tests.csv", delimiter=',')
+		images_fi_test = images_fi_test.values.tolist()
+
+		return images_fc_test, images_fi_test
+
+	def get_self_assessment_tests(self):
+		# Read features related to feature comparison tests
+		sa_test = pd.read_csv("./metamaterial_design/static/self_assessment_questions.csv", delimiter=',')
+		sa_test = sa_test.values.tolist()
+		sa_test_dict = []
+		for i in range(len(sa_test)):
+			sa_test_dict.append({'id':i, 'text':sa_test[i][0]})
+		return sa_test_dict
+
+	def get_feature_test_answers(self):
+		# Read designs related to design comparison tests
+		fc_test_answers = pd.read_csv("./metamaterial_design/static/feature_comparison_answers.csv", delimiter=',')
+		fc_test_answers = fc_test_answers.to_dict('list')['answers']
+
+		# Read designs related to design identification tests
+		fi_test_answers = pd.read_csv("./metamaterial_design/static/feature_identification_answers.csv", delimiter=',')
+		fi_test_answers = fi_test_answers.to_dict('list')['answers']
+
+		return fi_test_answers + fc_test_answers
+
 
 class Group(BaseGroup):
 	pass
 
 class Player(BasePlayer):
 
+	answers0 = models.TextField()
+	answers1 = models.TextField()
+	answers2 = models.TextField()
+	answers3 = models.TextField()
+
 	def update_pareto(self):
-		data = pd.DataFrame(self.session.vars) #dictionary
+		# Historic dataset
+		data = np.array([self.session.vars.get(key) for key in ['obj1', 'obj2']]).T  #dictionary
 		n_data = data.shape[0]
 
 		# Gather old responses
-		prev_response = pd.DataFrame(self.participant.vars)
+		prev_response = np.array([self.participant.vars.get(key) for key in ['obj1', 'obj2']]).T  #dictionary
+		n_response = prev_response.shape[0]
 
 		# Gathering objectives data
-		tem1 = data[['obj1', 'obj2']].values
-		tem2 = prev_response[['obj1', 'obj2']].values
+		tem1 = data
+		tem2 = prev_response
 		costs = np.vstack([tem1, tem2])*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
-		
+		# Constraint Feasibility=1 should be satisfied
+		if_constr1 = np.array([v==1 for v in self.session.vars['constr1']] + [v==1 for v in self.participant.vars['constr1']])
 		# Find new pareto and update databse
-		ret = self.subsession.is_pareto_efficient(costs)
+		ret = self.subsession.is_pareto_efficient(costs[if_constr1])
+		is_pareto = np.zeros((n_data+n_response,)).astype(bool)
+		is_pareto[if_constr1] = ret
+
 		# self.session.vars['is_pareto_new'] = ret[0:n_data].tolist()
-		is_pareto_new = ret[0:n_data].tolist()
-		self.participant.vars['is_pareto'] = ret[n_data:].tolist()
-		self.session.vars['is_pareto_response' + str(self.id_in_subsession)] = is_pareto_new
+		self.participant.vars['is_pareto'] =  is_pareto[n_data:].tolist()
+		self.session.vars['is_pareto_response' + str(self.id_in_subsession)] =  is_pareto[0:n_data].tolist()
 		
-		return is_pareto_new
+		return is_pareto[0:n_data].tolist()
 
 	def update_response_database(self, response):
 		# Gather old responses
@@ -158,6 +249,8 @@ class Player(BasePlayer):
 		if ~np.any(np.isin(z, ['', None, 'nan'])):
 			x_img = self.subsession.decoder(z)
 			x = self.subsession.encoder_bitstring(x_img).numpy()[0]
+			x[x>0.25]=1
+			x[x<0.25]=0
 
 		if np.any(np.isin(x, ['', None, 'nan'])):
 			x = np.ones(Constants.edgelist.shape[0])
@@ -170,7 +263,8 @@ class Player(BasePlayer):
 		x_img = self.subsession.convert_to_img(x)
 		image = json.dumps(x_img.tolist())
 		design = json.dumps(x.tolist())
-		response = dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image, is_pareto=None, points_checked=points_checked)
+		feature = json.dumps(z.tolist())
+		response = dict(design=design, feature=feature, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image, is_pareto=None, points_checked=points_checked)
 		# Check if any element is int32
 		for k, v in response.items():
 			if isinstance(v, np.int32) or isinstance(v, np.int64):
@@ -189,12 +283,11 @@ class Player(BasePlayer):
 
 def custom_export(players):
 	# header row
-	yield ['session', 'participant_code', 'index', 'design', 'obj1', 'obj2', 'constr1', 'constr2', 'image', 'points_checked']
+	yield ['session', 'participant_code', 'index', 'design', 'feature', 'obj1', 'obj2', 'constr1', 'constr2', 'image', 'points_checked']
 	for p in players:
 		data = p.participant.vars
 		if data:
 			n_data = len(data['design'])
-			print(data)
 			for i in range(n_data):
-				yield [p.session.code, p.participant.code, i, data['design'][i], data['obj1'][i], 
+				yield [p.session.code, p.participant.code, i, data['design'][i], data['feature'][i], data['obj1'][i], 
 						data['obj2'][i], data['constr1'][i], data['constr2'][i], data['image'][i], data['points_checked'][i]]

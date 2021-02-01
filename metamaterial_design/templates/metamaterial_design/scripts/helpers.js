@@ -2,6 +2,14 @@
 // -------------------------------------------------------------------------------------
 
 	// TRADESPACE PLOT
+	function filter_points(x, th){
+		if (x > th) {
+			return 1 // Opacity of selected points
+		} else {
+			return 0.01
+		}
+	}
+
 	// Hover info
 	function get_hover_text (_data, is_response=false) {
 		if (is_response) {
@@ -15,7 +23,7 @@
 			return ' '
 		} else {
 			var hover_text = _data.constr1.map(function(x,i){
-				return '<br>{{Constants.constraints.0}}: ' + x.toFixed(1) + '<br>{{Constants.constraints.1}}: ' +  _data.constr2[i].toFixed(1) + '<br>Design #' + (i+1).toFixed(0) + data_str
+				return '<br>{{Constants.constraints.0}}: ' + x.toFixed(1) + '<br>Design #' + (i+1).toFixed(0) + data_str
 			});
 			return hover_text
 		}
@@ -58,7 +66,11 @@
 			'y': [_response_data.obj2],
 			'text': [get_hover_text(_response_data, is_response=true)],
 		};
-		Plotly.restyle(tsViz, data_update, [1])
+
+		var layout_update = {
+			'updatemenus[1].buttons[1].args': [{'marker.opacity': [ response_data.constr1.map( x => filter_points(x, constr1_th))] }, [1] ],
+		}
+		Plotly.update(tsViz, data_update, layout_update, [1])
 	}
 
 	function update_pareto_response(_data, _response_data) {
@@ -67,7 +79,7 @@
 		    'x': [pareto_data.obj1],
 			'y': [pareto_data.obj2],
 		};
-		Plotly.update(tsViz, data_update, {}, [2])
+		Plotly.update(tsViz, data_update, {}, [3])
 	}
 
 	function changeSelectedDesign(curveNumber, pointNumber) {
@@ -166,13 +178,13 @@
 		annotation = {
 			xref: 'paper',
 			yref: 'paper',
-			x: 0.95,
+			x: 1,
 			xanchor: 'right',
 			y: -0.25,
 			yanchor: 'bottom',
 			text: 'Design #' + (pointNumber+1) + data_str + 
 					'<br>{{Constants.objectives.0}}: ' + _data.obj1[pointNumber].toFixed(2) + '  {{Constants.objectives.1}}: ' + _data.obj2[pointNumber].toFixed(2) +
-					'<br>{{Constants.constraints.0}}: ' + _data.constr1[pointNumber].toFixed(1) + '  {{Constants.constraints.1}}: ' +  _data.constr2[pointNumber].toFixed(1),
+					'<br>{{Constants.constraints.0}}: ' + _data.constr1[pointNumber].toFixed(1),// + '  {{Constants.constraints.1}}: ' +  _data.constr2[pointNumber].toFixed(1),
 			showarrow: false,
 			font: {
 			  color: "black",

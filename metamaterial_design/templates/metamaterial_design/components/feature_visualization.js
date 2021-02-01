@@ -16,7 +16,7 @@
 
 	// Check for formatting https://plotly.com/javascript/reference/layout/sliders/
 	const slider_template = {
-		pad: {l:100, r: -110},
+		pad: {l:90, r: -90},
 		len: 0.2,
 		steps: inticks,
 		active: 5,
@@ -58,7 +58,7 @@
 		grid: {rows: num_features, columns: num_ticks, pattern: 'independent'},
 		showlegend:false,
 		sliders: [],
-		margin: {l:10, r:10, t:5, b:50},
+		margin: {l:20, r:20, t:30, b:50},
 		annotations: []
 	};
 
@@ -92,7 +92,7 @@
 		// Add sliders
 		for (let i = 0; i < num_features; i++) {
 			slider = deepCopyFunction(slider_template);
-			slider.y = Number((1-i/num_features + 0.5/num_features).toFixed(2));
+			slider.y = Number((1-i/num_features).toFixed(2));
 			//Create update upon slider event
 			var slider_update = {};
 			for (let j = 0; j < num_ticks; j++) {
@@ -120,7 +120,7 @@
 		// Add annotations
 		for (let i = 0; i < num_features; i++) {
 			annotation = deepCopyFunction(annotation_template)
-			annotation.y = Number((1-i/num_features - 0.1/num_features).toFixed(2));
+			annotation.y = Number((1-i/num_features-0.05).toFixed(2));
 			annotation.text = feature_names[i]
 			_layout.annotations.push(annotation);
 		}
@@ -165,8 +165,7 @@
 		for (let i = 0; i < num_features; i++) {
 			for (let j = 0; j < num_ticks; j++){
 				let id = i*num_ticks+j+1;
-				image = JSON.parse(data.feature_images)
-				image = image.slice(i * 28, (i + 1) * 28).map( function (x, _) { return x.slice(j * 28, (j + 1) * 28) } )
+				image = JSON.parse(feature_images.slice(i, (i + 1)).map( function (x, _) { return x.slice(j, (j + 1)) } ))
 				image = image.map( x => subtract_arr_from_1(x) )
 				let design = {
 					z: image,

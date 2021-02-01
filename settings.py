@@ -12,7 +12,10 @@ SESSION_CONFIGS = [
 			display_name="Metamaterial Design - HMI",
 			num_demo_participants=3,
 			app_sequence=['metamaterial_design'],
-			my_page_timeout_seconds=200*60
+			task_duration=15*60,
+			test_duration=7*60,
+			instr_duration=5*60,
+			performance_goal=0, #[0:'learning', 1:'performance']
 		),
 ]
 
