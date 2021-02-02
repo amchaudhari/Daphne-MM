@@ -112,7 +112,8 @@ class Subsession(BaseSubsession):
 		if self.round_number == 1:
 			# Reading data #Columns = design stiffness	volume_fraction	feasibility	stability vertical_lines horizontal_lines	diagonals	triangles	three_stars	image
 			data = pd.read_csv("./metamaterial_design/static/metamaterial_designs_filtered.csv")
-			data = data.sort_values(['obj1', 'obj2'], ascending=[True, True])
+			data = data.drop_duplicates(subset=['obj1', 'obj2'], ignore_index=True)
+			data = data.sort_values(['obj1', 'obj2'], ascending=[True, True], ignore_index=True)
 			n_data = data.shape[0]
 
 			# Adding pareto front information

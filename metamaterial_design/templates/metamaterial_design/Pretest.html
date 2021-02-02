@@ -20,7 +20,7 @@ Pre-Test Questions
 	<input type="hidden" name="answers0" value="">
 
 	<p>
-		Recall that a unit structure of metamaterial is made of multiple truss elements, each joining a pair of nodes in a 3 x 3 nodes grid. A unit structure is replicated horizontally and vertically to form a complete material.
+		Recall that a unit cell structure of metamaterial is made of multiple truss elements, each joining a pair of nodes in a 3 x 3 nodes grid. A unit structure is replicated horizontally and vertically to form a complete material.
 		<br>
 		<br>
 		<b> Verical stiffness </b> of a metamaterial structure is defined as the vertical force required to expand or contract the structure by unit distance vertically. To normalize the stiffness values between 0 and 1, we divide them by a constant (Young's Modulus of material).
@@ -32,7 +32,7 @@ Pre-Test Questions
 	<p> Please answer the following questions to the best of your understanding. </p>
 
 	<!-- Design Comparison  -->
-	<p class=h4> Compare Designs </p>
+	<p class="h2 text-center"> Compare Designs </p>
 	{% for id in ids_pretest %}
 		<b>Question {{ id }}</b>
 			<div class="row">
@@ -55,14 +55,14 @@ Pre-Test Questions
 						Which metamaterial has higher vertical stiffness?<br>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=0 name="ans_pretest{{ id }}_0" required>A</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=1 name="ans_pretest{{ id }}_0" required >B</label>
-						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_pretest{{ id }}_0" required > Same for both </label>
+						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_pretest{{ id }}_0" required > Minimal difference </label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=3 name="ans_pretest{{ id }}_0" required checked>Not Sure</label>
 					</p>
 					<p>
 						Which metamaterial has higher volume fraction?<br>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=0 name="ans_pretest{{ id }}_1" required >A</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=1 name="ans_pretest{{ id }}_1" required >B</label>
-						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_pretest{{ id }}_1" required > Same for both </label>
+						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_pretest{{ id }}_1" required > Minimal difference </label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=3 name="ans_pretest{{ id }}_1" required checked>Not Sure</label>
 					</p>
 				</div>

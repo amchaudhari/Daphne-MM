@@ -1,66 +1,76 @@
 {% load otree static %}
-
- <br>
-
     <p class="h4 text-center"> I. Scenario	</p>
 	<p>
-		Imagine you are a material scientist in an engineering firm. You specialize in designing mechanical metamaterials for high-strength light-weight components. To help you with your job, your firm recently acquired a decision support tool. Your job is to use this tool to create metamaterials with high strength and low weight. The best metamaterials among all metamaterials you create will help the firm determine how the tool improves overall performance. You will also complete a questionnaire assessing your knowledge of mechanical metamaterials before and after using the tool. <b> Your goal is to maximize the stiffness and minimize volume fraction of mechanical materials as much as possible. </b>
+		Imagine you are a material scientist in an engineering firm. You specialize in designing mechanical metamaterials  for high-strength light-weight components. Mechanical metamaterials are artificial structures with mechanical properties defined by their structure. To help you with your job, your firm recently acquired a decision support tool. Your job is to use this tool to create metamaterials with high stiffness and low weight that are also feasible. 
+	</p>
+	<p>
+		The “optimal” metamaterials among all metamaterials you create will help the firm determine how the tool improves overall performance. A metamaterial design is among the optimal designs if there exists no other metamaterial design in the dataset that has better stiffness for the same or lower volume fraction.  The set of optimal metamaterials is also called Pareto front. 
+	</p>
+	<p>
+		<b>Your goal is to maximize the stiffness and minimize volume fraction of mechanical materials as much as possible while making sure metamaterials are feasible.</b> In addition to your tasks, you will complete a questionnaire assessing your knowledge of mechanical metamaterials before and after using the tool. 
 	</p>
 	<br>
 	<p class="h4 text-center"> II. Tool </p>
 	<p> The tool focuses on a specific type of mechanical metamaterial that has following properties:
 		<ul>
-			<li> A unit structure repeats in a 2D plane to create a metamaterial, as seen from Fig. 1. </li>
-			<li> The unit structure is made of multiple links joining nodes in a 3 x 3 grid. Not all links are necessary. </li>
+			<li> A unit cell structure repeats in a 2D plane to create a metamaterial, as seen from Figure below. </li>
+			<li> The unit cell structure is made of multiple links joining nodes in a 3 x 3 grid. Not all links are necessary. </li>
 			<figure class="figure">
-			  	<img src="{% static 'metamaterial.jpg' %}" class="figure-img img-fluid rounded">
-			  	<figcaption class="figure-caption">Metamaterial design and a unit structure within it</figcaption>
+			  	<img src="{% static 'metamaterial.png' %}" class="figure-img img-fluid rounded">
+			  	<figcaption class="figure-caption"> Full metamaterial design (left) and a unit cell structure within it (right)</figcaption>
 			</figure>
 
 			<li>Every metamaterial is rated using two objectives, vertical stiffness (relates to strength) and volume fraction (relates to weight). 
-				Additionally, there is a feasibility constraint that metamaterial should satisfy. Desired metamaterials maximize stiffness and minimize volume fraction. All metrics are normalized between 0 and 1.
+				<br>
+				Additionally, there is a feasibility constraint that the metamaterial should satisfy. Desired metamaterials maximize stiffness and minimize volume fraction. All metrics are displayed as adimensional quantities normalized between 0 and 1.
 
 			</li>
 			<table class="table">
 			  <tbody>
 			    <tr>
 			      <th scope="row"> Vertical Stiffness </th>
-			      <td> Relates to the amount of vertical force required to expand or contract a metamaterial by unit distance vertically. </td>
+			      <td> Relates to the amount of vertical force required to expand or contract a metamaterial by unit distance vertically </td>
 			      <td> The higher the better </td>
 			    </tr>
 			    <tr>
 			      <th scope="row"> Volume Fraction </th>
-			      <td> The volume of unit structure divided by total volume (including missing links and empty space in the unit area). </td>
+			      <td> The volume of unit cell structure divided by total volume (including missing links and empty space in the unit area) </td>
 			      <td> The smaller the better </td>
 			    </tr>
 			    <tr>
 			      <th scope="row"> Feasibility (Constraint) </th>
-			      <td> No two links should intersect, except at nodes. Also, metamaterial should be fully connected (i.e. cannot have disconnected subcomponents). </td>
+			      <td> No two links in a unit cell should intersect, except at nodes. Also, the resulting metamaterial should be fully connected (i.e. it cannot have disconnected subcomponents). </td>
 			      <td> Feasibility = 1 is desired. Every violation of the constraint reduces feasibility by 0.1. </td>
 			    </tr>
 			  </tbody>
 			</table>
 		</ul>
 	</p>
-
+	<br>
 	<p> The tool offers many functionalities.
 		<ul>
-			<li> You can explore a dataset of old metamaterials. Blue dotted line represents a set of best metamaterials, also called the pareto front. Only metamaterials with feasibility equal to 1 are considered for pareto front.  </li>
+			<li> You can explore a dataset of existing metamaterials. The blue dotted line represents a set of optimal designs, also called <b>the Pareto front</b>. A design belongs to the Pareto front if there exists no other design in the set that has better stiffness for the same or lower volume fraction. For example, the metamaterial design shown here with the red plus symbol is dominated by the Pareto designs on the blue dotted line.
+				<br>
+			<b>Only metamaterials with feasibility equal to 1 are considered part of pareto front.</b>
+			</li>
 			<figure class="figure">
 			  	<img src="{% static 'tradespace_performance.gif' %}" class="figure-img img-fluid rounded">
 			</figure>
-			<li> You can create your own metamaterial and evaluate its vertical stiffness and volume fraction. Your job is to create new designs that are among the best designs (belong to the pareto front), i.e., they either have higher stiffness or lower volume fraction than any other design in the dataset.</li>
+			<li> You can create your own metamaterial and evaluate its vertical stiffness and volume fraction. Your job is to create new designs that are among the optimal designs (belong to the Pareto front).</li>
 			<figure class="figure">
 			  	<img src="{% static 'design_creation.gif' %}" class="figure-img img-fluid rounded">
 			</figure>
-			<li> The tool offers an artificial intelligence (AI) agent to generate new metamaterial automatically. You can select values of features you like and the AI agent will generate a new metamaterial with those features. Each feature takes value between -2.5 (low) to 2.5 (high). </li>
+			<li> In addition to creating your own designs, the tool offers an artificial intelligence (AI) agent to generate new metamaterials automatically. You can select values of features you like (patterns contained by many good designs) and the AI agent will generate a new metamaterial with those features. Each feature takes value between -2.5 (low) to 2.5 (high). </li>
 			<figure class="figure">
 			  	<img src="{% static 'feature_exploration.gif' %}" class="figure-img img-fluid rounded">
 			</figure>
 		</ul>
 	 </p>
 	 <br>
+	<br>
 	 <p class="h4 text-center"> III. Sample Questions </p>
+	 <br>
+	 <p>As part of the experiment, you will answer some questions testing your knowledge about this problem before and after using the tool. Below are some examples of questions you may get. </p>
 	 <figure class="figure">
 			  	<img src="{% static 'sample_question1.JPG' %}" class="figure-img img-fluid rounded">
 			  	<figcaption class="figure-caption">Sample Question 1</figcaption>
@@ -79,6 +89,7 @@
 			</figure>
 
 	<br>
+	<br>
 	 <p class="h4 text-center"> IV. Experiment Protocol </p>
 	 <table class="table">
 	  <tbody>
@@ -89,12 +100,12 @@
 	    </tr>
 	     <tr>
 	      <th scope="row"> Pretest questionnaire </th>
-	      <td> Answer 5 questions for assessing your prior knowledge of mechanical metamaterials </td>
-	      <td> 2 min </td>
+	      <td> Answer 8 questions for assessing your prior knowledge of mechanical metamaterials </td>
+	      <td> 5 min </td>
 	    </tr>
 	    <tr>
 	      <th scope="row"> Task 1 </th>
-	      <td> Test tool functionalities such as exploration of old metamaterials and creation of new metamaterials </td>
+	      <td> Test tool functionalities such as exploration of existing metamaterials and creation of new metamaterials </td>
 	      <td> 15 min </td>
 	    </tr>
 	    <tr>
@@ -128,7 +139,7 @@
 	<br>
 	<br>
 	<p>
-		Remember your goal is to maximize vertical stiffness and minimize volume fraction of mechanical materials as much as possible. Please utilize Task 1 and Task 2 to create as many best metamaterials (i.e., pareto front designs) as possible.
+		Remember your goal is <b>to maximize vertical stiffness and minimize volume fraction of mechanical materials as much as possible</b>, but there is no preference between these two objectives. As long as they are on the Pareto front, a design that has very high stiffness is as good as one that has very low volume fraction. Please utilize Task 1 and Task 2 to create as many “optimal” metamaterials (i.e., Pareto front designs) as possible.
 	</p>
 
 

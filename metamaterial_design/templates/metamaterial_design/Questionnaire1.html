@@ -2,7 +2,7 @@
 {% load otree static %}
 
 {% block title %}
-Test Questions
+Questionnaire 1
 {% endblock %}
 
 {% block scripts %}
@@ -45,7 +45,7 @@ Test Questions
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=3 name="ans_di_test{{ id }}_0" required checked>Not Sure</label>
 					</p>
 					<p>
-						Does this design have high stiffness (greater than 0.3)?<br>
+						Does this design have high vertical stiffness (greater than 0.3)?<br>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=0 name="ans_di_test{{ id }}_1" required >Yes</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=1 name="ans_di_test{{ id }}_1" required >No</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_di_test{{ id }}_1" disabled ></label>
@@ -76,17 +76,17 @@ Test Questions
 				<!-- Test text -->
 				<div class="col">
 					<p>
-						Which metamaterial has higher stiffness?<br>
+						Which metamaterial has higher vertical stiffness?<br>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=0 name="ans_dc_test{{ id }}_0" required>A</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=1 name="ans_dc_test{{ id }}_0" required >B</label>
-						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_dc_test{{ id }}_0" required >Same for both</label>
+						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_dc_test{{ id }}_0" required >Minimal difference</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=3 name="ans_dc_test{{ id }}_0" required checked>Not Sure</label>
 					</p>
 					<p>
 						Which metamaterial has higher volume fraction?<br>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=0 name="ans_dc_test{{ id }}_1" required >A</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=1 name="ans_dc_test{{ id }}_1" required >B</label>
-						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_dc_test{{ id }}_1" required >Same for both</label>
+						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=2 name="ans_dc_test{{ id }}_1" required >Minimal difference</label>
 						<label class="radio-inline"><input type="radio" onchange="check_me(this)" value=3 name="ans_dc_test{{ id }}_1" required checked>Not Sure</label>
 					</p>
 				</div>

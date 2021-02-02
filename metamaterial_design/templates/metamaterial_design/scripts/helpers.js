@@ -68,7 +68,7 @@
 		};
 
 		var layout_update = {
-			'updatemenus[1].buttons[1].args': [{'marker.opacity': [ response_data.constr1.map( x => filter_points(x, constr1_th))] }, [1] ],
+			'updatemenus[1].buttons[1].args': [{'marker.opacity': [ _response_data.constr1.map( x => filter_points(x, constr1_th))] }, [1] ],
 		}
 		Plotly.update(tsViz, data_update, layout_update, [1])
 	}
@@ -173,7 +173,7 @@
 		if (curveNumber === 1) {
 			data_str = '-new' // Response data, new
 		} else {
-			data_str = '-old' // Historic data, old
+			data_str = '-existing' // Historic data, old
 		}
 		annotation = {
 			xref: 'paper',

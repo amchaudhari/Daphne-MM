@@ -7,7 +7,7 @@
 		y_range = [-0.1, 1]
 	var button_layer_1_height = 1.2
 	 	button_layer_2_height = 1.05
-		button_offset_1 = 0.22
+		button_offset_1 = 0.25
 		button_offset_2 = 0.22
 
 	function filter_points(x, th){
@@ -26,7 +26,7 @@
 		colorscale: 'Hot',
 		mode: 'markers',
 		type: 'scatter',
-		name: 'Old designs',
+		name: 'Existing designs',
 		marker:{size:sizes, color: colors, symbol:symbols, opacity:1},
 		hovertemplate: '{{Constants.objectives.0}}: %{x:.2f}' +
 					   '<br>{{Constants.objectives.1}}: %{y:.2f}' +
@@ -55,7 +55,7 @@
 		x: data.obj1.filter((x,i) =>data.is_pareto[i]),
 		y: data.obj2.filter((x,i) =>data.is_pareto[i]),
 		mode: 'lines',
-		name: 'Best of old designs',
+		name: 'Best of existing designs',
 		showlegend: true,
 		line: {"shape": 'vh', "dash": "dashdot", "color":'blue'},
 	}
@@ -64,7 +64,7 @@
 		x: data.obj1.filter((x,i) =>data.is_pareto[i]),
 		y: data.obj2.filter((x,i) =>data.is_pareto[i]),
 		mode: 'lines',
-		name: 'Best of old designs',
+		name: 'Best of existing designs',
 		showlegend: false,
 		visible: true,
 		line: {"shape": 'vh', "dash": "dashdot", "color":'blue'},
@@ -74,7 +74,7 @@
 	var pareto_response = {
 		x: _pareto_response_data.obj1,
 		y: _pareto_response_data.obj2,
-		name: 'Best of old + new designs',
+		name: 'Best of existing + new designs',
 		mode: 'lines',
 		showlegend: true,
 		line: {"shape": 'vh', "dash": "dashdot", "color":'red'},
@@ -192,7 +192,7 @@
 		//   	font: {size: 14},
 		// },
 		{
-		  	text: 'Filter Old Designs by:',
+		  	text: 'Filter Existing Designs by:',
 		  	x: 0,
 		  	y: button_layer_1_height,
 		  	xref: 'paper',
