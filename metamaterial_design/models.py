@@ -47,7 +47,7 @@ class Constants(BaseConstants):
 	objectives = ['Vertical stiffness', 'Volume Fraction']
 	constraints = ['Feasibility', 'Stability']
 
-	choices_sa_test = ['Strongly agree', 'Agree', 'Undecided', 'Diagree', 'Strongly diagree']
+	choices_sa_test = ['Strongly agree', 'Agree', 'Undecided', 'Diagree', 'Strongly disagree']
 
 class Subsession(BaseSubsession):
 
