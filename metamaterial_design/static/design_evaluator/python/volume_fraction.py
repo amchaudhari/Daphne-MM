@@ -33,4 +33,7 @@ def calcVF(NC,CA,rvar,sel,sidenum):
     #   thickness) as a baseline)
     volFrac = totalTrussVol/(2*thick*(sel**2)); 
 
+    if volFrac>1:
+        volFrac=1
+
     return volFrac
