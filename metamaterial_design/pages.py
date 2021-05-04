@@ -6,7 +6,6 @@ import numpy as np
 import pickle as pickle
 import json
 
-
 class Instructions(Page):
 	def vars_for_template(self):
 		
@@ -88,6 +87,31 @@ class Task2(Page):
 	def vars_for_template(self):
 		return dict(
 			instruction_url=self.subsession.get_instruction_url()
+		)
+
+	def js_vars(self):
+		nodes = self.subsession.nodes()
+		edges = self.subsession.edges()
+		return dict(
+			data = self.session.vars,
+			response_data = self.participant.vars,
+			nodes = nodes,
+			edges = edges,
+			feature_images = self.subsession.get_feature_images(),
+			feature_names = Constants.feature_names,
+			goals = self.subsession.get_goals()
+		)
+
+class Main(Page):
+	live_method = 'live_design_generator_and_evaluator'
+
+	def get_timeout_seconds(self):
+		return self.session.config['task_duration']
+
+	def vars_for_template(self):
+		return dict(
+			instruction_url = self.subsession.get_instruction_url(),
+			task = 'Mechanical Metamaterial Design'
 		)
 
 	def js_vars(self):
@@ -189,4 +213,5 @@ class Results(Page):
 		)
 
 
-page_sequence = [Instructions, Pretest, Task1, Questionnaire1, Task2, Questionnaire2, Questionnaire3, Results]
+page_sequence = [Main]
+# [Instructions, Pretest, Task1, Questionnaire1, Task2, Questionnaire2, Questionnaire3, Results]

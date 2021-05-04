@@ -142,6 +142,8 @@
 		image = image.map( x => subtract_arr_from_1(x) )
 		annotation = get_annotation(_data, curveNumber, pointNumber)
 		Plotly.restyle(desViz, 'z', [image]);
+
+		Plotly.restyle(featCreat, 'z', [image]);
 		Plotly.relayout(desViz, 'annotations', [annotation])
 	}
 

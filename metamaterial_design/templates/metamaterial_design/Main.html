@@ -1,0 +1,129 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+	Task: {{ task }}
+{% endblock %}
+
+{% block scripts %}
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+	<!-- Plotting scripts -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+	<!-- Tensorflowjs -->
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+
+	<style>
+		.hide: { display: none; visibility: hidden }
+	</style>
+
+{% endblock %}
+
+{% block content %}
+
+	<!-- Tradespace Panel -->
+	<div class="panel panel-default">
+		<div class="panel-heading">Tradespace Visualization</div>
+		<div id="tsViz" style="width:700;height:400px;"></div>
+	</div>
+
+	<!-- Design Space Exploration Tabs -->
+	<ul class="nav nav-tabs" id="myTab" role="tablist">
+		<li class="nav-item">
+			<a class="nav-link active" id="design-tab" data-toggle="tab" href="#design" role="tab" aria-controls="design" aria-selected="true"> Design Exploration </a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" id="feature-tab" data-toggle="tab" href="#feature" role="tab" aria-controls="feature" aria-selected="false"> Feature Exploration </a>
+		</li>
+	</ul>
+
+	<!-- Design Space Exploration Tabs Content -->
+	<div class="tab-content" id="myTabContent">
+		<!-- Design tab -->
+	  	<div class="tab-pane fade show active" id="design" role="tabpanel" aria-labelledby="design-tab">
+	  		<div class="row">
+				<!-- Design Vizualization Panel -->
+				<div class="col-md">
+					<div class="panel panel-default">
+						<div class="panel-heading"> Metamaterial Visualization - Selected Design <span style="color: transparent;  text-shadow: 0 0 0 red; ">&#10133;</span> </div>
+						<div id="desViz" style="width:400px;height:350px;float:center"></div>
+					</div>
+				</div>
+				<!-- Design Creation Panel -->
+				<div class="col-md">
+					<div class="panel panel-default">
+						<div class="panel-heading"> Build New Metamaterial </div>
+						<button id="clearAll" type="button" class="btn btn-secondary btn-sm" style="float:right; position:relative; top:30px; right:10px">Clear All</button>
+						<div id="desCreat" style="width:400px;height:350px;">
+							<p style="text-align:center"> <em> Click to Add Link & Double-Click to Remove Link </em></p>
+						</div>
+						<button id="testDesign" type="button" class="btn btn-primary" style="float:right; position:relative; bottom:40px; right:10px">Test Metamaterial</button>
+					</div>
+				</div>
+			</div>
+	  	</div>
+
+	  	<!-- Feature tab -->
+	  	<div class="tab-pane fade" id="feature" role="tabpanel" aria-labelledby="feature-tab">
+	  		<div class="row">
+				<!-- Feature Space Visualization -->
+				<div class="col-md">
+					<div class="panel panel-default">
+						<div class="panel-heading"> Generate New Metamaterial by Changing Features </div>
+						<div id="featCreat" style="width:400;height:350px;"></div>
+						<button id="resetAll" type="button" class="btn btn-secondary btn-sm" style="float:right; position:relative; bottom:40px; right:150px">Reset All</button>
+						<button id="testDesign" type="button" class="btn btn-primary" style="float:left; position:relative; bottom:40px; left:150px">Test Metamaterial</button>
+					</div>
+				</div>
+			</div>
+	  	</div>
+	</div>
+	<br>
+	<br>
+	<div>
+		<p class="h2"> Instructions </p>
+		<button id="showInstructions" type="button" class="btn btn-secondary btn-sm">Show</button>
+	</div>
+	<div id="instructions">
+		{% include instruction_url %}
+	</div>
+	
+	<script>
+		// Global variables
+		{% include "metamaterial_design/vars.js" %}
+
+		// Global utilities
+		{% include "metamaterial_design/scripts/utils.js" %}
+		{% include "metamaterial_design/scripts/helpers.js" %}
+		window.onload = function () {
+			{% include "metamaterial_design/components/timer.js" %} 
+			{% include "metamaterial_design/components/tradespace_visualization.js" %}
+			{% include "metamaterial_design/components/design_visualization.js" %}
+			{% include "metamaterial_design/components/design_creation.js" %}
+			{% include "metamaterial_design/components/feature_creation.js" %}
+			{% include "metamaterial_design/components/instructions.js" %}
+			changeSelectedDesign(selected_curve, selected_point)
+		}
+
+		// Use liveRecv to receive data from python
+		function liveRecv(input) {
+			response_data = input['response_data']
+			n_response = response_data.obj1.length
+			data['is_pareto_response' + player_id.toFixed(0)] = input['is_pareto_response']  // New pareto information for historic data
+			// Update plots in the tradespace
+			update_tradespace_response(response_data)
+			update_pareto_response(data, response_data)
+			// Update the design visualization tab
+			selected_curve = 1	// Display response
+			selected_point = response_data.obj1.length-1
+			changeSelectedDesign(selected_curve, selected_point);
+		}
+		// Use liveSend to call live methods in python
+		// liveSend()
+
+	</script>
+
+{% endblock %}

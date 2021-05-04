@@ -194,7 +194,6 @@ class Subsession(BaseSubsession):
 
 		return fi_test_answers + fc_test_answers
 
-
 class Group(BaseGroup):
 	pass
 
@@ -207,7 +206,7 @@ class Player(BasePlayer):
 
 	def update_pareto(self):
 		# Historic dataset
-		data = np.array([self.session.vars.get(key) for key in ['obj1', 'obj2']]).T  #dictionary
+		data = np.array([self.session.vars.get(key) for key in ['obj1', 'obj2']]).T #dictionary
 		n_data = data.shape[0]
 
 		# Gather old responses
@@ -238,6 +237,9 @@ class Player(BasePlayer):
 			if key not in prev_response:
 				prev_response[key]=[]
 			prev_response[key].append(response[key])
+
+	def live_design_generator_and_generator(self, data):
+		pass
 
 	def live_design_evaluator(self, data):
 		#Load data even if it may be empty
