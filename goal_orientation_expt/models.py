@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import json
 import _static.design_evaluator.python as truss_model
-import tensorflow as tf
+# import tensorflow as tf
 import matplotlib.pyplot as plt
 import PIL.Image as Image
 import warnings
@@ -53,8 +53,8 @@ class Constants(BaseConstants):
 
 class Subsession(BaseSubsession):
 
-	decoder = tf.keras.models.load_model('./_static/bvae_decoder.h5')
-	encoder_bitstring = tf.keras.models.load_model('./_static/encoder_bitstring.h5')
+	# decoder = tf.keras.models.load_model('./_static/bvae_decoder.h5')
+	# encoder_bitstring = tf.keras.models.load_model('./_static/encoder_bitstring.h5')
 
 	def get_goals(self):
 		if self.session.config['if_performance_goal'] == 0:
