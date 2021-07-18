@@ -1,22 +1,64 @@
 from os import environ
 
 SESSION_CONFIGS = [
-		# dict(
-		#    name='public_goods',
-		#    display_name="Public Goods",
-		#    num_demo_participants=3,
-		#    app_sequence=['public_goods', 'payment_info']
-		# ),
-			dict(
-			name='metamaterial_design',
-			display_name="Metamaterial Design - HMI",
+		dict(
+			name='main',
+			display_name="Metamaterial Design - Main",
 			num_demo_participants=3,
-			app_sequence=['metamaterial_design'],
-			task_duration=15*60,
-			test_duration=7*60,
+			app_sequence=['main'],
+			task_duration=180*60,
 			instr_duration=5*60,
-			performance_goal=0, #[0:'learning', 1:'performance']
+			if_performance_goal=1, #[0:'learning', 1:'performance']
+			if_attributes=1, #[0:'Do not show semantic attributes', 1:'Show semantic attributes']
+			dse_mode=0, #[0:'all', 1:'build_your_own', 2:'change_features', 3:'auto_suggestions'],
+			page_sequence=['Main'],#'Instructions', 'Pretest', 'Task1', 'Questionnaire1', 'Task2', 'Questionnaire2', 'Questionnaire3', 'Results'],
+			doc=
+			"""
+		    	| 'task_duration': Number of seconds user spends on the task\n
+		    	| 'instr_duration': Minimum number of seconds a user should reads instructions\n
+		    	| 'performance_goal': [0:'learning', 1:'performance']\n
+				| 'if_atttributes': [0:'Do not show semantic attributes', 1:'Show semantic attributes']\n
+				| 'dse_mode':[0:'all', 1:'build_your_own', 2:'change_features', 3:'auto_suggestions']\n
+		    """
 		),
+		dict(
+			name='goal_orientation_expt',
+			display_name="Metamaterial Design - Effects of Goal Orientation",
+			num_demo_participants=3,
+			app_sequence=['goal_orientation_expt'],
+			task_duration=15*60,
+			instr_duration=5*60,
+			if_performance_goal=1, #[0:'learning', 1:'performance']
+			if_attributes=0, #[0:'Do not show semantic attributes', 1:'Show semantic attributes']
+			dse_mode=0, #[0:'all', 1:'build_your_own', 2:'change_features', 3:'auto_suggestions'],
+			page_sequence=['Instructions', 'Pretest', 'Task1', 'Questionnaire1', 'Task2', 'Questionnaire2', 'Questionnaire3', 'Results'],
+			doc=
+			"""
+		    	| 'task_duration': Number of seconds user spends on the task\n
+		    	| 'instr_duration': Minimum number of seconds a user should reads instructions\n
+		    	| 'performance_goal': [0:'learning', 1:'performance']\n
+				| 'if_atttributes': [0:'Do not show semantic attributes', 1:'Show semantic attributes']\n
+				| 'dse_mode':[0:'all', 1:'build_your_own', 2:'change_features', 3:'auto_suggestions']\n
+		    """
+		),
+		dict(
+			name='automation_expt',
+			display_name="Metamaterial Design - Effects of Automation",
+			num_demo_participants=3,
+			app_sequence=['automation_expt'],
+			task_duration=7*60,
+			instr_duration=4*60,
+			if_performance_goal=1, #[0:'learning', 1:'performance']
+			if_attributes=1, #[0:'Do not show semantic attributes', 1:'Show semantic attributes']
+			doc=
+			"""
+		    	| 'task_duration': Number of seconds user spends on the task\n
+		    	| 'instr_duration': Minimum number of seconds a user should reads instructions\n
+		    	| 'performance_goal': [0:'learning', 1:'performance']\n
+				| 'if_atttributes': [0:'Do not show semantic attributes', 1:'Show semantic attributes']\n
+				| 'dse_mode':[0:'all', 1:'build_your_own', 2:'change_features', 3:'auto_suggestions']\n
+		    """
+		)
 ]
 
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
