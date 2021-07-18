@@ -12,7 +12,6 @@ import numpy as np
 import pandas as pd
 import json
 import _static.design_evaluator.python as truss_model
-import tensorflow as tf
 import matplotlib.pyplot as plt
 import PIL.Image as Image
 import warnings
