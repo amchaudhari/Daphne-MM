@@ -46,7 +46,7 @@ class Constants(BaseConstants):
 	pos = truss_model.generateNC(sel, sidenum);
 	target_c_ratio = 1; # Ratio of C22/C11 to target
 
-	objectives = ['Vertical stiffness', 'Volume Fraction']
+	objectives = ['Vertical Stiffness', 'Volume Fraction']
 	constraints = ['Feasibility', 'Stability']
 
 	choices_sa_test = ['Strongly agree', 'Agree', 'Undecided', 'Diagree', 'Strongly disagree']
