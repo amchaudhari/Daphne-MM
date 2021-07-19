@@ -23,7 +23,6 @@
 			x_selected = []
 			z_selected = []
 			z_generated = []
-			change_selected_design(curveNumber, pointNumber)
 		}
 
 	}

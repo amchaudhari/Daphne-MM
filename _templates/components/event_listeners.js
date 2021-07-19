@@ -46,10 +46,15 @@
 			}
 
 			// Send the collected data to python for evaluating a design
+			if (z_generated.length === 0){
+				z = []
+			} else {
+				z = z_generated[z_generated.length - 1]
+			}
 			send_data = {
 				'message':'test design',
 				'x': x,
-				'z': z_selected[z_selected.length - 1],
+				'z': z,
 				'x_selected':x_selected,
 				'z_selected':z_selected,
 				'z_generated':z_generated,
@@ -81,7 +86,8 @@
 				'z': z,
 				'x_selected': x_selected,
 				'z_selected': [],
-				'z_generated':[]
+				'z_generated':[],
+				'feature_ind':[]
 			}
 		}
 

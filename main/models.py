@@ -63,10 +63,7 @@ class Subsession(BaseSubsession):
 			return ['', '']
 
 	def get_instruction_url(self):
-		if self.session.config['if_performance_goal'] == 0:
-			instruction_url= Constants.name_in_url + "/" + "instructions_performance.html"
-		else:
-			instruction_url= Constants.name_in_url + "/" + "instructions_learning.html"
+		instruction_url= Constants.name_in_url + "/" + "instructions_automation.html"
 		return instruction_url
 
 	def nodes(self):
@@ -299,8 +296,11 @@ class Player(BasePlayer):
 			image = json.dumps(x_img.tolist())
 			design = json.dumps(x.tolist())
 
-			response = data.update(dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
-			is_pareto=None))			# Check if any element is int32
+			response = dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
+			is_pareto=None)
+			response.update(data)
+
+			# Check if any element is int32
 			for k, v in response.items():
 				if isinstance(v, np.int32) or isinstance(v, np.int64):
 					response[k] = int(v)
@@ -327,7 +327,9 @@ def custom_export(players):
 				yield ['session', 'participant_code'] + keys
 				ctr+=1
 			n_data = len(data[keys[0]])
+			print([len(data[k]) for k in keys])
 			for i in range(n_data):
+				print(i)
 				row = [p.session.code, p.participant.code]
 				row = row + [data[k][i] for k in keys]
 				yield row
