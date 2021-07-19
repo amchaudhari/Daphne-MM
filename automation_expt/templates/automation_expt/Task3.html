@@ -89,6 +89,9 @@
 		<p class="h2"> Instructions </p>
 		<button id="showInstructions" type="button" class="btn btn-secondary btn-sm">Show</button>
 	</div>
+	<div id="instructions">
+		{% include instruction_url %}
+	</div>
 	
 	<script>
 		// variables
@@ -115,6 +118,7 @@
 			{% include "components/design_creation.js" %}
 			{% include "components/feature_creation.js" %}
 			{% include "components/design_generation.js" %}
+			{% include "components/instructions.js" %}
 
 			// Change selected design and Update the design visualization tab
 			change_selected_design(selected_curve, selected_point)

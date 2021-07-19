@@ -89,6 +89,9 @@
 		<p class="h2"> Instructions </p>
 		<button id="showInstructions" type="button" class="btn btn-secondary btn-sm">Show</button>
 	</div>
+	<div id="instructions">
+		{% include instruction_url %}
+	</div>
 	
 	<script>
 		// variables
@@ -112,6 +115,7 @@
 			{% include "components/design_creation.js" %}
 			{% include "components/feature_creation.js" %}
 			{% include "components/design_generation.js" %}
+			{% include "components/instructions.js" %}
 
 			{% include "components/event_listeners.js" %}
 
@@ -122,8 +126,6 @@
 
 		{% include "scripts/liveRecv.js" %}
 
-
-		
 		// activeTaskId = "design-tab"
 
 	</script>

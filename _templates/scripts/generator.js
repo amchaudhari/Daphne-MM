@@ -171,11 +171,9 @@ class DesignGenerator {
 
 			b = tf.less(loss, min_loss)
 			h_best = tf.sub( h_new.mul(b), tf.mul(h_best,b.sub(1)) )
-			h_new.print()
-			h_best.print()
+
 			min_loss = tf.minimum(loss, min_loss)
 			h = h_new
-
 		}
 
 		return h_best;

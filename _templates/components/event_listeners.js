@@ -50,7 +50,10 @@
 				'message':'test design',
 				'x': x,
 				'z': z,
-				'points_checked': points_checked,
+				'x_selected':x_selected,
+				'z_selected':z_selected,
+				'z_generated':z_generated,
+				'feature_ind':feature_ind
 			}
 			console.log(send_data)
 		}
@@ -77,7 +80,9 @@
 				'message':'test design',
 				'x': x,
 				'z': z,
-				'points_checked': points_checked,
+				'x_selected': x_selected,
+				'z_selected': [],
+				'z_generated':[]
 			}
 		}
 

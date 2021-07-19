@@ -35,7 +35,7 @@
 		},
 		currentvalue: {
 			font: {color: 'black', size: 14},
-			suffix: '                                                        ',
+			suffix: '                                                    ',
 			xanchor: "right",
 			offset: -15
 		},
@@ -177,11 +177,19 @@
 
 		// Do other stuff
 		new_features = new_features.then(arr => {
+			
 			recontr_image = design_generator.decode(arr)
 			recontr_image.then(image => {
 				design_generator.clean_and_print(image)
 			})
+
+			//Convert into JS variable
 			arr = arr.squeeze().dataSync()
+
+			// Store the features being generated
+			z_selected.push([...selected_features])
+			z_generated.push([...arr])
+
 			//Select 5 features
 			let new_values = arr.filter((x,i)=>feature_ind[i])
 

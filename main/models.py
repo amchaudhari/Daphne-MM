@@ -267,7 +267,7 @@ class Player(BasePlayer):
 			x[x<0.25]=0
 			x_img = self.subsession.convert_to_img(x)
 			image = x_img.tolist()
-
+			
 			return {self.id_in_group: dict(message='clean image',image=image)}
 
 		elif data['message']=='test design':
@@ -298,8 +298,8 @@ class Player(BasePlayer):
 			image = json.dumps(x_img.tolist())
 			design_bitstring = json.dumps(x.tolist())
 			feature = json.dumps(z.tolist())
-			response = dict(design_bitstring=design_bitstring, feature=feature, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image, is_pareto=None, points_checked=points_checked)
-			# Check if any element is int32
+			response = data.update(dict(design=design, feature=feature, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
+			is_pareto=None))			# Check if any element is int32
 			for k, v in response.items():
 				if isinstance(v, np.int32) or isinstance(v, np.int64):
 					response[k] = int(v)
@@ -317,11 +317,16 @@ class Player(BasePlayer):
 
 def custom_export(players):
 	# header row
-	yield ['session', 'participant_code', 'index', 'design', 'feature', 'obj1', 'obj2', 'constr1', 'constr2', 'image', 'points_checked']
+	ctr=0
 	for p in players:
 		data = p.participant.vars
 		if data:
-			n_data = len(data['design'])
+			if ctr==0:
+				keys = list(data.keys())
+				yield ['session', 'participant_code'] + keys
+				ctr+=1
+			n_data = len(data[keys[0]])
 			for i in range(n_data):
-				yield [p.session.code, p.participant.code, i, data['design'][i], data['feature'][i], data['obj1'][i], 
-						data['obj2'][i], data['constr1'][i], data['constr2'][i], data['image'][i], data['points_checked'][i]]
+				row = [p.session.code, p.participant.code]
+				row = row + [data[k][i] for k in keys]
+				yield row

@@ -212,6 +212,7 @@ class Player(BasePlayer):
 		# Gathering objectives data
 		tem1 = data
 		tem2 = prev_response
+
 		costs = np.vstack([tem1, tem2])*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
 		# Constraint Feasibility=1 should be satisfied
 		if_constr1 = np.array([v==1 for v in self.session.vars['constr1']] + [v==1 for v in self.participant.vars['constr1']])
@@ -254,7 +255,6 @@ class Player(BasePlayer):
 			x[x>0.25]=1
 			x[x<0.25]=0
 			z = np.array([data['z']])
-			points_checked = data['points_checked']
 
 			if ~np.any(np.isin(z, ['', None, 'nan'])):
 				x_img = self.subsession.decoder(z)
@@ -274,7 +274,10 @@ class Player(BasePlayer):
 			image = json.dumps(x_img.tolist())
 			design = json.dumps(x.tolist())
 			feature = json.dumps(z.tolist())
-			response = dict(design=design, feature=feature, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image, is_pareto=None, points_checked=points_checked)
+
+			response = dict(design=design, feature=feature, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
+			is_pareto=None)
+			response.update(data)
 			# Check if any element is int32
 			for k, v in response.items():
 				if isinstance(v, np.int32) or isinstance(v, np.int64):
@@ -293,11 +296,29 @@ class Player(BasePlayer):
 
 def custom_export(players):
 	# header row
-	yield ['session', 'participant_code', 'index', 'design', 'feature', 'obj1', 'obj2', 'constr1', 'constr2', 'image', 'points_checked']
+	ctr=0
 	for p in players:
 		data = p.participant.vars
 		if data:
-			n_data = len(data['design'])
+			if ctr==0:
+				keys = list(data.keys())
+				yield ['session', 'participant_code'] + keys
+				ctr+=1
+			n_data = len(data[keys[0]])
 			for i in range(n_data):
-				yield [p.session.code, p.participant.code, i, data['design'][i], data['feature'][i], data['obj1'][i], 
-						data['obj2'][i], data['constr1'][i], data['constr2'][i], data['image'][i], data['points_checked'][i]]
+				row = [p.session.code, p.participant.code]
+				row = row + [data[k][i] for k in keys]
+				yield row
+
+
+
+	# yield ['session', 'participant_code', 'index', 'design', 'feature', 'obj1', 'obj2', 
+	# 'constr1', 'constr2', 'image', 'x_selected', 'z_selected' 'z_generated' 'feature_ind']
+	# for p in players:
+	# 	data = p.participant.vars
+	# 	if data:
+	# 		n_data = len(data['design'])
+	# 		for i in range(n_data):
+	# 			yield [p.session.code, p.participant.code, i, data['design'][i], data['feature'][i], data['obj1'][i], 
+	# 					data['obj2'][i], data['constr1'][i], data['constr2'][i], data['image'][i], data['x_selected'][i],
+	# 					data['z_selected'][i], data['z_generated'][i], data['feature_ind'][i]]

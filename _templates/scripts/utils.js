@@ -34,7 +34,7 @@ function elemul(a,b){
 }
 
 function replace(arr, arr_indices, vals) {
-	var new_arr = arr
+	var new_arr = [...arr]
 	const indices = arr_indices.reduce(
 	  (out, bool, index) => bool ? out.concat(index) : out, 
 	  []

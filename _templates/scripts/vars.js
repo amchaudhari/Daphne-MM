@@ -62,8 +62,10 @@ var tsViz = document.getElementById('tsViz');
 var featCreat = document.getElementById('featCreat');
 var activeTaskId = "design-tab";
 
-// Information to send back to database
-var points_checked = [];
+// Information to send back to the database
+var x_selected = [data.design_bitstring[selected_point]]
+var z_selected = []
+var z_generated = []
 
 //Reconstructed image shown temporarily on the screen
 var recontr_image = Promise.resolve([]);

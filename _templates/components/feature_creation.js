@@ -34,7 +34,7 @@
 		},
 		currentvalue: {
 			font: {color: 'black', size: 14},
-			suffix: '                                                        ',
+			suffix: '                                                    ',
 			xanchor: "right",
 			offset: -15
 		},
@@ -178,6 +178,11 @@
 		// Retrieve current image data
 		current_slider_values[e.slider.name] = Number(e.step.value)
 		new_features = replace(selected_features, feature_ind, current_slider_values)
+
+		// Store the features being generated
+		z_selected.push([...selected_features])
+		z_generated.push([...new_features])
+
 		// do other things needed
 		recontr_image = design_generator.decode(new_features) 
 		recontr_image.then(image => {
