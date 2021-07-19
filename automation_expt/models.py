@@ -254,13 +254,13 @@ class Player(BasePlayer):
 			x = np.array(data['x'])
 			x[x>0.25]=1
 			x[x<0.25]=0
-			z = np.array([data['z']])
-
-			if ~np.any(np.isin(z, ['', None, 'nan'])):
-				x_img = self.subsession.decoder(z)
-				x = self.subsession.encoder_bitstring(x_img).numpy()[0]
-				x[x>0.25]=1
-				x[x<0.25]=0
+			
+			# z = np.array([data['z']])
+			# if ~np.any(np.isin(z, ['', None, 'nan'])):
+			# 	x_img = self.subsession.decoder(z)
+			# 	x = self.subsession.encoder_bitstring(x_img).numpy()[0]
+			# 	x[x>0.25]=1
+			# 	x[x<0.25]=0
 
 			if np.any(np.isin(x, ['', None, 'nan'])):
 				x = np.ones(Constants.edgelist.shape[0])
@@ -273,9 +273,8 @@ class Player(BasePlayer):
 			x_img = self.subsession.convert_to_img(x)
 			image = json.dumps(x_img.tolist())
 			design = json.dumps(x.tolist())
-			feature = json.dumps(z.tolist())
 
-			response = dict(design=design, feature=feature, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
+			response = dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
 			is_pareto=None)
 			response.update(data)
 			# Check if any element is int32

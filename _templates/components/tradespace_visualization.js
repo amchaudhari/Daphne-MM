@@ -297,14 +297,6 @@
 
 		change_selected_design(curveNumber, pointNumber)
 
-		// Store which points are tested before this and change the main selected design
-		if (curveNumber === 0) {
-			x_selected.push(data.design_bitstring[pointNumber])
-		}
-		if (curveNumber === 1) {
-			x_selected.push(response_data.design_bitstring[pointNumber])
-		}
-
 		if ("{{ Constants.name_in_url }}" === "main" ||  "{{ Constants.name_in_url }}" === "automation_expt"){
 			//Reset the feature exploration tabs
 			document.getElementById("resetAll").click();

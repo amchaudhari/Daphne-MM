@@ -132,6 +132,8 @@
 		//Automatically update the design plot using bitsting design
 		x = JSON.parse(_data.design_bitstring[pointNumber])
 		update_design_creation_plot(x)
+		// Store which points are tested before this and change the main selected design
+		x_selected.push(x)
 
 		// Store new curve id and new point id
 		selected_curve = curveNumber;

@@ -18,6 +18,12 @@
 
 			// Update design visualization
 			plot_design(1, response_data.obj1.length-1, 'tested')
+
+			//Reset database variables
+			x_selected = []
+			z_selected = []
+			z_generated = []
+			change_selected_design(curveNumber, pointNumber)
 		}
 
 	}

@@ -49,13 +49,12 @@
 			send_data = {
 				'message':'test design',
 				'x': x,
-				'z': z,
+				'z': z_selected[z_selected.length - 1],
 				'x_selected':x_selected,
 				'z_selected':z_selected,
 				'z_generated':z_generated,
 				'feature_ind':feature_ind
 			}
-			console.log(send_data)
 		}
 
 		// Check if the current app is for the goal orientation experiment
