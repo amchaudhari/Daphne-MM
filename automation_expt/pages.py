@@ -250,4 +250,4 @@ class Results(BasePage):
 			goals = self.subsession.get_goals()
 		)
 
-page_sequence = [Task2, Instructions, Pretest, Task1, Questionnaire1, Task2, Questionnaire2, Task3, Questionnaire3, Questionnaire4, Results]
+page_sequence = [Instructions, Pretest, Task1, Questionnaire1, Task2, Questionnaire2, Task3, Questionnaire3, Questionnaire4, Results]
