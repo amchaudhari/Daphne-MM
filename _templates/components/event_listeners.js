@@ -58,7 +58,8 @@
 				'x_selected':x_selected,
 				'z_selected':z_selected,
 				'z_generated':z_generated,
-				'feature_ind':feature_ind
+				'feature_ind':feature_ind,
+				'data_key':data_key
 			}
 		}
 

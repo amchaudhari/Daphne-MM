@@ -51,6 +51,8 @@ class Constants(BaseConstants):
 
 	choices_sa_test = ['Strongly agree', 'Agree', 'Undecided', 'Diagree', 'Strongly disagree']
 
+	data_keys = ['Main']
+
 class Subsession(BaseSubsession):
 
 	# decoder = tf.keras.models.load_model('metamaterial_design/static/bvae_decoder.h5')

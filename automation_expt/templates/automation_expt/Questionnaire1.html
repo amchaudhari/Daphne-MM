@@ -22,8 +22,6 @@ Questionnaire 1
 	<p> Please answer the following questions to the best of your understanding. </p>
 
 	<p> Definition of Pareto Front: It is a set of designs which are better than other designs in at least one objective (stiffness or volume fraction).</p>
-	<!-- Tradespace Panel -->
-	<div id="tsViz" style="width:700;height:400px;"></div>
 
 	<!-- Design Comparison  -->
 	<p class="h2 text-center"> Compare Designs </p>
@@ -64,19 +62,13 @@ Questionnaire 1
 	{% endfor %}
 
 	<script>
-		// variables
-		{% include "scripts/vars.js" %}
-		// Learning test related variables
+		{% include "scripts/utils.js" %}
+
 		// Read images
 		var images_dc_test = js_vars.images_dc_test
 		n_dc_tests = images_dc_test.length/2
 
-		// utilities
-		{% include "scripts/utils.js" %}
-		{% include "scripts/helpers.js" %}
-
 		window.onload = function () {
-			{% include "components/tradespace_visualization.js" %}
 			{% include "components/design_comparison_test.js" %}
 
 			//Listen to the submit button

@@ -1,10 +1,13 @@
 
 // Global variables
 var data = js_vars.data; // Historic data; constant
+const data_key = js_vars.data_key;
 var	n_data = data.obj1.length
 var feature_images = js_vars.feature_images
 var feature_ind = js_vars.feature_ind
 var response_data = js_vars.response_data
+console.log(response_data)
+console.log(data)
 if (response_data === undefined || Object.keys(response_data).length === 0){
 	response_data = {}
 } else {
@@ -53,7 +56,7 @@ var target_objectives = [1, 0]
 
 // Initialize selected point on display
 var selected_curve = 0
-var selected_point = 500
+var selected_point = 50
 var selected_features;
 
 // DOM elements

@@ -31,9 +31,12 @@ class Constants(BaseConstants):
 	num_rounds = 1
 	num_features = 5
 	num_ticks = 100
+
 	abstract_features = ["Feature 1", "Feature 2", "Feature 3", "Feature 4", "Feature 5"]
 	semantic_attributes = ["Horizontal\nLines",	"Vertical Lines",	"Diagonals", "Triangles", "Three Stars"]
 	feature_names = abstract_features+semantic_attributes
+
+	attribute_keys = ['attr1', 'attr2', 'attr3', 'attr4', 'attr5']
 
 	E = 0.7e09; # Young's Modulus for polymeric material (example: 10000 Pa)
 	sel = 0.01; # Unit square side length (NOT individual truss length) (example: 5 cm)
@@ -50,6 +53,9 @@ class Constants(BaseConstants):
 	constraints = ['Feasibility', 'Stability']
 
 	choices_sa_test = ['Strongly agree', 'Agree', 'Undecided', 'Diagree', 'Strongly disagree']
+
+	# Different initial data for each treatment
+	data_keys = ['Task1', 'Task2', 'Task3']
 
 class Subsession(BaseSubsession):
 
@@ -102,28 +108,34 @@ class Subsession(BaseSubsession):
 		x = np.array(img)<255
 		
 		return x.astype('int')
+
+	def add_pareto_column(self, data):
+		data = data.drop_duplicates(subset=['obj1', 'obj2'], ignore_index=True)
+		data = data.sort_values(['obj1', 'obj2'], ascending=[True, True], ignore_index=True)
+		n_data = data.shape[0]
+
+		# Adding pareto front information
+		costs = data[['obj1', 'obj2']].values*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
+		# Check if feasibility constraint is satisfied
+		is_constr1 = data['constr1'] == 1
+		ret = self.is_pareto_efficient(costs[is_constr1])	# Pareto front of the historic data
+		data['is_pareto'] = np.zeros((n_data,)).astype(bool)
+		data['is_pareto'][is_constr1] = ret
+		for p in self.get_players():
+			player_id = p.id_in_subsession
+			data['is_pareto_response'+str(player_id)] = data['is_pareto']	# Pareto front after considering new responses evaluated by the designer
+		data['id'] = np.arange(data.shape[0])
+		return data
 	
 	def creating_session(self):
 		if self.round_number == 1:
 			cwd = os.getcwd()
 			# Reading data #Columns = design stiffness	volume_fraction	feasibility	stability vertical_lines horizontal_lines	diagonals	triangles	three_stars	image
-			data = pd.read_csv("./_static/metamaterial_designs_normalized_filtered.csv")
-			data = data.drop_duplicates(subset=['obj1', 'obj2'], ignore_index=True)
-			data = data.sort_values(['obj1', 'obj2'], ascending=[True, True], ignore_index=True)
-			n_data = data.shape[0]
-
-			# Adding pareto front information
-			costs = data[['obj1', 'obj2']].values*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
-			# Check if feasibility constraint is satisfied
-			is_constr1 = data['constr1'] == 1
-			ret = self.is_pareto_efficient(costs[is_constr1])	# Pareto front of the historic data
-			data['is_pareto'] = np.zeros((n_data,)).astype(bool)
-			data['is_pareto'][is_constr1] = ret
-			for p in self.get_players():
-				player_id = p.id_in_subsession
-				data['is_pareto_response'+str(player_id)] = data['is_pareto']	# Pareto front after considering new responses evaluated by the designer
-			data['id'] = np.arange(data.shape[0])
-			self.session.vars = data.to_dict('list')
+			#Store initial tradespace data for three treatments
+			for i in range(3):
+				data = pd.read_csv("./_static/metamaterial_designs_normalized_filtered"+str(i+1)+".csv")
+				data = self.add_pareto_column(data)
+				self.session.vars[Constants.data_keys[i]] = data.to_dict('list')
 
 			#Set features used by the user
 			for p in self.get_players():
@@ -132,6 +144,8 @@ class Subsession(BaseSubsession):
 				feature_ind = np.zeros(n)
 				feature_ind[idx] = 1
 				p.feature_ind = json.dumps(list(feature_ind))
+				for data_key in Constants.data_keys:
+					p.participant.vars[data_key] = dict()
 
 	def get_design_pretests(self):
 		# Read designs related to design comparison tests
@@ -200,36 +214,39 @@ class Player(BasePlayer):
 	def get_feature_names(self, indices):
 		return [Constants.feature_names[i] for i,t in enumerate(indices) if t==1]
 
-	def update_pareto(self):
+	def update_pareto(self, data_key):
 		# Historic dataset
-		data = np.array([self.session.vars.get(key) for key in ['obj1', 'obj2']]).T #dictionary
-		n_data = data.shape[0]
+		data = self.session.vars[data_key]
 
 		# Gather old responses
-		prev_response = np.array([self.participant.vars.get(key) for key in ['obj1', 'obj2']]).T  #dictionary
-		n_response = prev_response.shape[0]
-
+		prev_response = self.participant.vars[data_key]
+		
 		# Gathering objectives data
-		tem1 = data
-		tem2 = prev_response
+		tem1 = np.array([data.get(key) for key in ['obj1', 'obj2']]).T #dictionary
+		n_data = tem1.shape[0]
+		tem2 = np.array([prev_response.get(key) for key in ['obj1', 'obj2']]).T  #dictionary
+		n_response = tem2.shape[0]
 
 		costs = np.vstack([tem1, tem2])*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
 		# Constraint Feasibility=1 should be satisfied
-		if_constr1 = np.array([v==1 for v in self.session.vars['constr1']] + [v==1 for v in self.participant.vars['constr1']])
+		if_constr1 = np.array([v==1 for v in data['constr1']] + [v==1 for v in prev_response['constr1']])
 		# Find new pareto and update databse
 		ret = self.subsession.is_pareto_efficient(costs[if_constr1])
 		is_pareto = np.zeros((n_data+n_response,)).astype(bool)
 		is_pareto[if_constr1] = ret
 
 		# self.session.vars['is_pareto_new'] = ret[0:n_data].tolist()
-		self.participant.vars['is_pareto'] =  is_pareto[n_data:].tolist()
-		self.session.vars['is_pareto_response' + str(self.id_in_subsession)] =  is_pareto[0:n_data].tolist()
+		prev_response['is_pareto'] =  is_pareto[n_data:].tolist()
+		data['is_pareto_response' + str(self.id_in_subsession)] =  is_pareto[0:n_data].tolist()
 		
 		return is_pareto[0:n_data].tolist()
 
-	def update_response_database(self, response):
+	def update_response_database(self, response, data_key):
 		# Gather old responses
-		prev_response = self.participant.vars
+		if data_key not in self.participant.vars.keys():
+			self.participant.vars[data_key] = dict()
+
+		prev_response = self.participant.vars[data_key]
 		for key in response.keys():
 			if key not in prev_response:
 				prev_response[key]=[]
@@ -283,41 +300,34 @@ class Player(BasePlayer):
 					response[k] = int(v)
 
 			# Update databse and Check if pareto
-			self.update_response_database(response)
+			data_key = data['data_key']
+			self.update_response_database(response, data_key)
 
 			# Update pareto information; Returns pareto infroamtion for historic data
-			is_pareto_response = self.update_pareto()
+			is_pareto_response = self.update_pareto(data_key)
 
 			# Retrive updated data rom database
-			response_data = self.participant.vars
+			response_data = self.participant.vars[data_key]
 
 			return {self.id_in_group: dict(message='test design',response_data=response_data, is_pareto_response=is_pareto_response)}
 
 def custom_export(players):
-	# header row
+
+	# Different datasets for different treatments
+	data_keys = Constants.data_keys
+
 	ctr=0
 	for p in players:
-		data = p.participant.vars
-		if data:
-			if ctr==0:
-				keys = list(data.keys())
-				yield ['session', 'participant_code'] + keys
-				ctr+=1
-			n_data = len(data[keys[0]])
-			for i in range(n_data):
-				row = [p.session.code, p.participant.code]
-				row = row + [data[k][i] for k in keys]
-				yield row
-
-
-
-	# yield ['session', 'participant_code', 'index', 'design', 'feature', 'obj1', 'obj2', 
-	# 'constr1', 'constr2', 'image', 'x_selected', 'z_selected' 'z_generated' 'feature_ind']
-	# for p in players:
-	# 	data = p.participant.vars
-	# 	if data:
-	# 		n_data = len(data['design'])
-	# 		for i in range(n_data):
-	# 			yield [p.session.code, p.participant.code, i, data['design'][i], data['feature'][i], data['obj1'][i], 
-	# 					data['obj2'][i], data['constr1'][i], data['constr2'][i], data['image'][i], data['x_selected'][i],
-	# 					data['z_selected'][i], data['z_generated'][i], data['feature_ind'][i]]
+		for data_key in data_keys:
+			data = p.participant.vars[data_key]
+			if data:
+				if ctr==0:
+					keys = list(data.keys())
+					# header row
+					yield ['session', 'participant_code'] + keys
+					ctr+=1
+				n_data = len(data[keys[0]])
+				for i in range(n_data):
+					row = [p.session.code, p.participant.code]
+					row = row + [data[k][i] for k in keys]
+					yield row

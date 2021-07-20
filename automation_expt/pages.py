@@ -38,14 +38,13 @@ class Pretest(BasePage):
 	def js_vars(self):
 		images_pretest = self.subsession.get_design_pretests()
 		return dict(
-			data = self.session.vars,
-			response_data = self.participant.vars,
 			images_dc_test = images_pretest,
 		)
 
 class Main(BasePage):
 
 	page_name = 'Main'
+	data_key = Constants.data_keys[0]
 
 	def get_timeout_seconds(self):
 		return self.session.config['task_duration']
@@ -64,18 +63,20 @@ class Main(BasePage):
 			indices = [1-i for i in indices]
 			
 		return dict(
-			data = self.session.vars,
-			response_data = self.participant.vars,
+			data_key = self.data_key,
+			data = self.session.vars[self.data_key],
+			response_data = self.participant.vars[self.data_key],
 			nodes = nodes,
 			edges = edges,
 			feature_ind = indices,
 			feature_names = self.player.get_feature_names(json.loads(self.player.feature_ind)),
-			goals = self.subsession.get_goals()
+			goals = self.subsession.get_goals(),
 		)
 
 class Task1(Main):
 
 	page_name = 'Task1'
+	data_key = Constants.data_keys[0]
 
 
 class Questionnaire1(BasePage):
@@ -94,19 +95,21 @@ class Questionnaire1(BasePage):
 	def js_vars(self):
 		images_dc_test = self.subsession.get_design_tests()
 		return dict(
-			data = self.session.vars,
-			response_data = self.participant.vars,
+			# data = self.session.vars,
+			# response_data = self.participant.vars,
 			images_dc_test = images_dc_test,
-			goals = self.subsession.get_goals()
+			# goals = self.subsession.get_goals(),
 		)
 
 class Task2(Main):
 
 	page_name = 'Task2'
+	data_key = Constants.data_keys[1]
 
 class Task3(Main):
 
 	page_name = 'Task3'
+	data_key = Constants.data_keys[2]
 
 
 class Questionnaire2(BasePage):
@@ -120,22 +123,16 @@ class Questionnaire2(BasePage):
 		indices = np.array(json.loads(self.player.feature_ind))
 		feature_names = self.player.get_feature_names(indices)
 		images_dfi_test = self.subsession.get_design_feature_tests(indices)
-
 		return dict(
 			feature_names = feature_names,
 			ids_dfi_test = range(1, len(images_dfi_test)//2+1),
-			instruction_url=self.subsession.get_instruction_url()
 		)
 
 	def js_vars(self):
 		indices = np.array(json.loads(self.player.feature_ind))
 		images_dfi_test = self.subsession.get_design_feature_tests(indices)
-
 		return dict(
-			data = self.session.vars,
-			response_data = self.participant.vars,
 			images_dfi_test = images_dfi_test,
-			goals = self.subsession.get_goals()
 		)
 
 class Questionnaire3(BasePage):
@@ -152,17 +149,13 @@ class Questionnaire3(BasePage):
 		return dict(
 			feature_names = feature_names,
 			ids_dfi_test = range(1, len(images_dfi_test)//2+1),
-			instruction_url=self.subsession.get_instruction_url()
 		)
 
 	def js_vars(self):
 		indices = 1 - np.array(json.loads(self.player.feature_ind))
 		images_dfi_test = self.subsession.get_design_feature_tests(indices)
 		return dict(
-			data = self.session.vars,
-			response_data = self.participant.vars,
 			images_dfi_test = images_dfi_test,
-			goals = self.subsession.get_goals()
 		)
 
 class Questionnaire4(BasePage):
@@ -237,8 +230,8 @@ class Results(BasePage):
 		dfi_test_ifcorrect2 = [x==y for x, y in zip(dfi_test_answers2, dfi_test_player_answers2)]
 
 		return dict(
-			data = self.session.vars,
-			response_data = self.participant.vars,
+			data = self.session.vars[Constants.data_keys[-1]],
+			response_data = self.participant.vars[Constants.data_keys[-1]],
 			images_dc_test = images_dc_test,
 			images_dfi_test = images_dfi_test1 + images_dfi_test2,
 			dc_test_player_answers = dc_test_player_answers,

@@ -55,15 +55,11 @@ Questionnaire 3
 
 
 	<script>
-
+		{% include "scripts/utils.js" %}
+		
 		// variables
-		{% include "scripts/vars.js" %}
 		var images_dfi_test = js_vars.images_dfi_test
 		n_dfi_tests = images_dfi_test.length
-
-		// utilities
-		{% include "scripts/utils.js" %}
-		{% include "scripts/helpers.js" %}
 
 		window.onload = function () {
 

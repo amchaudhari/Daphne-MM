@@ -70,18 +70,13 @@ Pre-Test Questions
 	{% endfor %}
 
 	<script>
-	
-		var player_id = {{ player.id_in_subsession }}
 
 		// Read images
 		var images_dc_test = js_vars.images_dc_test
 		n_dc_tests = images_dc_test.length/2
 
-		var player_id = {{ player.id_in_subsession }}
-
 		// Loading javascripts
 		{% include "scripts/utils.js" %}
-		{% include "scripts/helpers.js" %}
 
 		window.onload = function () {
 			
@@ -95,7 +90,7 @@ Pre-Test Questions
 				answers = JSON.stringify(answers.map( function (a, i) { return a.value }))
 
 				document.getElementsByName('answers0')[0].value=answers
-				console.log(document.getElementsByName('answers0')[0].value)
+
 				setTimeout(
 			    	function () {
 			        	document.getElementById("form").submit(); 
