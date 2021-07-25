@@ -159,21 +159,28 @@ def feasibility(NC,CA_des):
 	# Left layer and right layer should be connected at at least one node
 	G = createGraph(NC, SortedCA)
 	connected_components = list(nx.connected_components(G))
-	horz_connecting_nodes = [[0,6], [0,7], [0,8], [1,6], [1,7], [1,8], [2,6], [2,7], [2,8]]
-	vert_connecting_nodes = [[0,2], [0,5], [0,8], [3,2], [3,5], [3,8], [6,2], [6,5], [6,8]]
+	horz_connecting_nodes = [[0,6], [1,7], [2,8]]
+	vert_connecting_nodes = [[0,2], [3,5], [6,8]]
+	diag_connecting_nodes = [[[1,5], [3,7]], [[1,3], [5,7]], [[0,8],[0,8]], [[2,6],[2,6]]]
+
 	horz_bool = []
 	vert_bool = []
+	diag_bool = []
+
 	for g in connected_components:
 		g = list(g)
 		horz_bool.append(np.any(np.all(np.isin(horz_connecting_nodes, g), axis=1)))
 		vert_bool.append(np.any(np.all(np.isin(vert_connecting_nodes, g), axis=1)))
+		diag_bool.append(np.all(np.isin(diag_connecting_nodes, g), axis=-1))
+
 	horz_bool = np.array(horz_bool)
 	vert_bool = np.array(vert_bool)
+	diag_bool = np.all(np.any(np.array(diag_bool), axis=0), axis=-1)
 
-	diagonal_connecting_nodes = [[[0,5], [3,8]], [[2,3], [5,6]], [[0,7], [1,8]], [[1,6], [2,7]]]
-	connecting_diagonal_pair_preset = any([ all(ls in SortedCA.tolist() for ls in lists) for lists in diagonal_connecting_nodes])
+	# diagonal_connecting_nodes = [[[1,5], [3, 7]], [[1,3], [5,7]]]
+	# connecting_diagonal_pair_present = any([ all(ls in SortedCA.tolist() for ls in lists) for lists in diagonal_connecting_nodes])
 
-	if not connecting_diagonal_pair_preset:
+	if sum([np.any(diag_bool), np.any(horz_bool), np.any(vert_bool)])<2:
 		if np.all(~horz_bool):
 			feasibilityScore = feasibilityScore - 0.1;
 			if feasibilityScore < 0.1:

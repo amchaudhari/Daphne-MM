@@ -55,7 +55,7 @@
 		x: data.obj1.filter((x,i) =>data.is_pareto[i]),
 		y: data.obj2.filter((x,i) =>data.is_pareto[i]),
 		mode: 'lines',
-		name: 'Best of existing designs',
+		name: 'Best of existing designs (Pareto*)',
 		showlegend: true,
 		line: {"shape": 'vh', "dash": "dashdot", "color":'blue'},
 	}
@@ -74,7 +74,7 @@
 	var pareto_response = {
 		x: _pareto_response_data.obj1,
 		y: _pareto_response_data.obj2,
-		name: 'Best of existing + new designs',
+		name: 'Best of existing + new designs (new Pareto*)',
 		mode: 'lines',
 		showlegend: true,
 		line: {"shape": 'vh', "dash": "dashdot", "color":'red'},
@@ -185,7 +185,7 @@
 		updatemenus: updatemenus,
 		annotations: annotations,
 		xaxis: {
-		   title: goals[0] + " " + "{{Constants.objectives.0}}",
+		   title: goals[0] + " " + "{{Constants.objectives.0}}" + "<br> <span style='font-size: 12px;'>*Only feasible metamaterials are part of Pareto front </span>",
 		   dtick: 0.05,
 		   showgrid: true
 		},

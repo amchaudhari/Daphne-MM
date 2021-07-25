@@ -2,7 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.collections
 
-__all__ = ['show_meshplot']
+__all__ = ['show_meshplot', 'repeatable_des']
+
+def repeatable_des(_X):
+    x = _X
+    
+    x[-2]=x[0]=max(x[-2],x[0]) #7-8=1-2
+    x[-1]=x[5]=max(x[-1],x[5]) #8-9=2-3
+    x[11]=x[3]=max(x[11],x[3]) #3-6=1-4
+    x[18]=x[23]=max(x[18],x[23])#6-9=4-7
+
+    return x
 
 def show_meshplot(nodes, elements, x, ifMatrix=False, ax=None, plotNodes=False):
     if not ax: ax=plt.gca()

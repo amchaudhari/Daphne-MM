@@ -1,13 +1,15 @@
+// Page instructions
+const page_instructions = js_vars.page_instructions
 
 // Global variables
 var data = js_vars.data; // Historic data; constant
 const data_key = js_vars.data_key;
 var	n_data = data.obj1.length
+
 var feature_images = js_vars.feature_images
 var feature_ind = js_vars.feature_ind
+
 var response_data = js_vars.response_data
-console.log(response_data)
-console.log(data)
 if (response_data === undefined || Object.keys(response_data).length === 0){
 	response_data = {}
 } else {
@@ -25,7 +27,7 @@ const num_ticks= {{ Constants.num_ticks }};
 const feature_names = js_vars.feature_names;
 const features_sliders_step_values = Array.apply(null, Array(num_ticks)).map(function (x, i) { return (-2.5+i*5/num_ticks); })
 const eta_slider_step_values = Array.apply(null, Array(num_ticks)).map(function (x, i) { return (i*0.5/num_ticks).toFixed(2); })
-const eta_n_steps = 75
+const eta_n_steps = 100
 
 var current_slider_values = new Array(num_features).fill(0);
 var eta = 0;
@@ -72,4 +74,5 @@ var z_generated = []
 
 //Reconstructed image shown temporarily on the screen
 var recontr_image = Promise.resolve([]);
+
 

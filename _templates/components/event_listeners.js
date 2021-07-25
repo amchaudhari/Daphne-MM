@@ -25,6 +25,7 @@
 						return image; 
 					}
 				})
+				recontr_image = Promise.resolve([]); // Reset
 				let x_bits = await design_generator.image_to_bitstring(image)
 				x = await x_bits.squeeze().array()
 			} else if ( activeTaskId === "generator-tab") {
@@ -41,6 +42,7 @@
 						return image; 
 					}
 				})
+				recontr_image = Promise.resolve([]); // Reset
 				let x_bits = await design_generator.image_to_bitstring(image)
 				x = await x_bits.squeeze().array()
 			}

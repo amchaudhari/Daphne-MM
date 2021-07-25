@@ -146,7 +146,7 @@ class DesignGenerator {
 	// 	return _reconstr_image;
 	// }
 
-	async feature_suggestions (_image, _attr, eta, n_steps, ref_point, weights=[1,1,1]) {
+	async feature_suggestions (_image, _attr, eta, n_steps, ref_point, weights=[2,2,1]) {
 		
 		var features = await this.get_features(_image, _attr)
 		ref_point = this.to_tensor(ref_point)
@@ -167,10 +167,11 @@ class DesignGenerator {
 			var h_new = await this.features_after_backpropagation(h, eta, ref_point, weights)
 			
 			var f_pred_new = reg.execute(h);
-			var loss = tf.sum(tf.losses.cosineDistance(ref_point, f_pred_new, axis=1).mul(weights))
+			var loss = tf.sum(tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights))
 
 			b = tf.less(loss, min_loss)
-			h_best = tf.sub( h_new.mul(b), tf.mul(h_best,b.sub(1)) )
+			h_best = h_new
+			// h_best = tf.sub( h_new.mul(b), tf.mul(h_best,b.sub(1)) )
 
 			min_loss = tf.minimum(loss, min_loss)
 			h = h_new
@@ -179,7 +180,7 @@ class DesignGenerator {
 		return h_best;
 	}
 
-	async features_after_backpropagation (h, eta, ref_point, weights=[1,1,1]) {
+	async features_after_backpropagation (h, eta, ref_point, weights=[2,2,1]) {
 
 		h = this.to_tensor(h)
 		var n_feat = tf.util.sizeFromShape(h.shape)
@@ -197,10 +198,10 @@ class DesignGenerator {
 		const reg = await this.regressor.then( res => {return res;})
 		const dummyloss_grad = tf.grad( _h => {
 			var f_pred = reg.execute(_h)
-			return tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights)
+			return tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights)// Only improve the design objectives and not the constraints
 		})
 		const dloss_dh = dummyloss_grad(h)
-		const delta_h = h.mul(dloss_dh)
+		// const delta_h = h.mul(dloss_dh)
 
 		//Adjust the features by the backpropogated error and reconstructe a new image
 		var h_new = h.sub(dloss_dh.mul(eta))

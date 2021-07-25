@@ -46,20 +46,24 @@ class Main(BasePage):
 	page_name = 'Main'
 	data_key = Constants.data_keys[0]
 
+	title_str = ''
+	page_instructions = ''
+
+
 	def get_timeout_seconds(self):
 		return self.session.config['task_duration']
 
 	def vars_for_template(self):
 		return dict(
 			instruction_url = self.subsession.get_instruction_url(),
-			task = 'Mechanical Metamaterial Design'
+			task = self.page_name + ": " + self.title_str
 		)
 
 	def js_vars(self):
 		nodes = self.subsession.nodes()
 		edges = self.subsession.edges()
 		indices = json.loads(self.player.feature_ind)
-		if self.page_name == 'Task3':
+		if self.page_name == 'Task 3':
 			indices = [1-i for i in indices]
 			
 		return dict(
@@ -69,15 +73,28 @@ class Main(BasePage):
 			nodes = nodes,
 			edges = edges,
 			feature_ind = indices,
-			feature_names = self.player.get_feature_names(json.loads(self.player.feature_ind)),
+			feature_names = self.player.get_feature_names(indices),
 			goals = self.subsession.get_goals(),
+			page_instructions=self.page_instructions
 		)
 
 class Task1(Main):
 
-	page_name = 'Task1'
+	page_name = 'Task 1'
 	data_key = Constants.data_keys[0]
 
+	title_str = 'Change Design'
+	page_instructions = "<br>".join(['<b>Exploring different metamaterials to (1) learn what good metamaterials have in common and (2) improve the Pareto front </b>',
+						' &nbsp; 1. Select a metamaterial by clicking on the tradespace plot',
+						' &nbsp; 2. Add or remove links using "Change Design" functionality',
+						' &nbsp; 3. Test the new metamaterial',
+						' &nbsp; 4. Repeat with different metamaterials '])
+
+	# '<b> Goal </b>: Create better metamaterials and improve the Pareto front' + '<br>' + 
+	# 			'<pre style="background-color:#ffffe6;">1. Select a metamaterial by clicking on the tradespace plot. ' + '<br>' + 
+	# 			'2. Add or remove links using "Change Design" functionality. ' + '<br>' + 
+	# 			'3. Test new metamaterial using the "Test metamaterial" button.' + '<br>' + 
+	# 			'4. Repeat with different metamaterials </pre>';
 
 class Questionnaire1(BasePage):
 
@@ -103,14 +120,27 @@ class Questionnaire1(BasePage):
 
 class Task2(Main):
 
-	page_name = 'Task2'
+	page_name = 'Task 2'
 	data_key = Constants.data_keys[1]
+
+	title_str = 'Change Feature'
+	page_instructions = "<br>".join(['<b>Explore different features to (1) learn their effects on the objectives and (2) improve the Pareto front </b>',
+						' &nbsp; 1. Select a metamaterial by clicking on the tradespace plot.',
+						' &nbsp; 2. Increase or decrease the feature(s) using the "Change Feature" functionality.',
+						' &nbsp; 3. Test the generated metamaterial using the "Test metamaterial" button.',
+						' &nbsp; 4. Repeat with different feature(s)'])
 
 class Task3(Main):
 
-	page_name = 'Task3'
+	page_name = 'Task 3'
 	data_key = Constants.data_keys[2]
 
+	title_str = 'Automated Feature Change'
+	page_instructions = "<br>".join(['<b>Explore different features to (1) learn their effects on the objectives and (2) improve the Pareto front </b>',
+						' &nbsp; 1. Select a metamaterial by clicking on the tradespace plot.',
+						' &nbsp; 2. Select the overall change. The higher the overall change, the more the tool explores far away from the selected metamaterial.',
+						' &nbsp; 3. Review the suggested feature changes and test using the "Test metamaterial" button.',
+						' &nbsp; 4. Repeat with different overall change '])
 
 class Questionnaire2(BasePage):
 
@@ -233,14 +263,14 @@ class Results(BasePage):
 			data = self.session.vars[Constants.data_keys[-1]],
 			response_data = self.participant.vars[Constants.data_keys[-1]],
 			images_dc_test = images_dc_test,
-			images_dfi_test = images_dfi_test1 + images_dfi_test2,
+			images_dfi_test = images_dfi_test1+images_dfi_test2,
 			dc_test_player_answers = dc_test_player_answers,
 			dc_test_answers = dc_test_answers,
 			dc_test_ifcorrect = dc_test_ifcorrect,
 			dfi_test_answers = dfi_test_answers1+dfi_test_answers2,
-			dfi_test_player_answers = dfi_test_player_answers1 + dfi_test_player_answers2,
+			dfi_test_player_answers = dfi_test_player_answers1+dfi_test_player_answers2,
 			dfi_ifcorrect = dfi_test_ifcorrect1+dfi_test_ifcorrect2,
 			goals = self.subsession.get_goals()
 		)
 
-page_sequence = [Instructions, Pretest, Task1, Questionnaire1, Task2, Questionnaire2, Task3, Questionnaire3, Questionnaire4, Results]
+page_sequence = [Task3, Instructions, Pretest, Task1, Questionnaire1, Task2, Questionnaire2, Task3, Questionnaire3, Questionnaire4, Results]

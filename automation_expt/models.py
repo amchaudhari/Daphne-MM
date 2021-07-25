@@ -283,6 +283,8 @@ class Player(BasePlayer):
 				x = np.ones(Constants.edgelist.shape[0])
 				
 			# Running the design evaluator and creating a response
+			# Repeat the edges in a 2d place
+			x = truss_model.repeatable_des(x)
 			obj1, obj2 = truss_model.multiobjectives(x, Constants.nucFac, Constants.sel, Constants.E, Constants.r, Constants.edgelist, 1)
 			edges_des = Constants.edgelist[x.astype(bool)]
 			constr1 = truss_model.feasibility(Constants.pos, edges_des)
