@@ -27,23 +27,31 @@ class DesignGenerator {
 
 	encoder_input (_image, _attr) {
 
-		_image = this.to_tensor(_image)
-		_attr = this.to_tensor(_attr)
-		
-		var n_attr = tf.util.sizeFromShape(_attr.shape)
-		var x_input = tf.reshape(_image, [1, this.image_size, this.image_size, 1])
-		var y_ = _attr.reshape([1, 1, 1, n_attr])
-		var k = tf.ones([1, this.image_size, this.image_size, 1])
-		x_input = tf.concat([x_input, tf.mul(k, y_)], 3)
+		let x_input = tf.tidy( ()=> {
+			_image = this.to_tensor(_image)
+			_attr = this.to_tensor(_attr)
+			
+			var n_attr = tf.util.sizeFromShape(_attr.shape)
+			var _x_input = tf.reshape(_image, [1, this.image_size, this.image_size, 1])
+			var y_ = _attr.reshape([1, 1, 1, n_attr])
+			var k = tf.ones([1, this.image_size, this.image_size, 1])
+			_x_input = tf.concat([_x_input, tf.mul(k, y_)], 3)
+			return _x_input
+		})
 
-		return x_input;
+		return x_input
 	}
 
 	decoder_input(_features, _attributes) {
 
-		_features = this.to_tensor(_features)
-		_attributes = this.to_tensor(_attributes)
-		return tf.concat([_features, _attributes], 1)
+		let h = tf.tidy( ()=> {
+			_features = this.to_tensor(_features)
+			_attributes = this.to_tensor(_attributes)
+
+			return tf.concat([_features, _attributes], 1)
+		})
+
+		return h
 
 	}
 
@@ -76,51 +84,60 @@ class DesignGenerator {
 
 	async get_features (_image, _attr, if_mean=false) {
 
-		_image = this.to_tensor(_image)
-		_attr = this.to_tensor(_attr)
-
-		var n_attr = tf.util.sizeFromShape(_attr.shape)
-		_attr = _attr.reshape([1,n_attr])
-
-		// Get featues of input image
-		var x_input = this.encoder_input(_image, _attr)
 		const model = await this.encoder.then(res => {return res})
-		let outputs = model.predict(x_input);
-		let features = this.sample_normal(outputs[1], outputs[0])
-		
-		if (if_mean) {
-			return outputs[1]
-		} else {
-			return features
-		}
+
+		let features = tf.tidy(() => {
+			_image = this.to_tensor(_image)
+			_attr = this.to_tensor(_attr)
+
+			var n_attr = tf.util.sizeFromShape(_attr.shape)
+			_attr = _attr.reshape([1,n_attr])
+
+			// Get featues of input image
+			var x_input = this.encoder_input(_image, _attr)
+			let outputs = model.predict(x_input);
+			let _features = this.sample_normal(outputs[1], outputs[0])
+			
+			if (if_mean) {
+				return outputs[1]
+			} else {
+				return _features
+			}
+		})
+
+		return features
 		
 	}
 
 	async decode (_features, _attr) {
 
-		_features = this.to_tensor(_features)
-		var n_feat = tf.util.sizeFromShape(_features.shape)
-		_features = _features.reshape([1,n_feat])
-
-		if (_attr) {
-			_attr = this.to_tensor(_attr)
-			var n_attr = tf.util.sizeFromShape(_attr.shape)
-			_attr = _attr.reshape([1,n_attr])
-
-			// var features = tf.tensor2d([ 0.27411187, -0.07349992,  0.2188173 ,  0.03695954,  0.03956294], [1,5])
-			// var features = await this.get_features(_image, _attr)
-			// Augment the decoder input with the diff and find the reconstructed image from the decoder
-			// var new_features = features.add(diff)
-			var h_new = tf.concat([_features, _attr], 1)
-		} else {
-			var h_new = _features
-		}
-
 		const model = await this.decoder.then( res => { return res; })
-		let _reconstr_image = await model.execute(h_new);
-		// this.send_for_cleaning(_reconstr_image)
 
-		return _reconstr_image;
+		let _reconstr_image = tf.tidy( () => {
+			_features = this.to_tensor(_features)
+			var n_feat = tf.util.sizeFromShape(_features.shape)
+			_features = _features.reshape([1,n_feat])
+
+			if (_attr) {
+				_attr = this.to_tensor(_attr)
+				var n_attr = tf.util.sizeFromShape(_attr.shape)
+				_attr = _attr.reshape([1,n_attr])
+
+				// var features = tf.tensor2d([ 0.27411187, -0.07349992,  0.2188173 ,  0.03695954,  0.03956294], [1,5])
+				// var features = await this.get_features(_image, _attr)
+				// Augment the decoder input with the diff and find the reconstructed image from the decoder
+				// var new_features = features.add(diff)
+				var h_new = tf.concat([_features, _attr], 1)
+			} else {
+				var h_new = _features
+			}
+
+			// this.send_for_cleaning(_reconstr_image)
+
+			return model.execute(h_new)
+		})
+
+		return _reconstr_image
 
 	}
 
@@ -148,65 +165,76 @@ class DesignGenerator {
 
 	async feature_suggestions (_image, _attr, eta, n_steps, ref_point, weights=[2,2,1]) {
 		
-		var features = await this.get_features(_image, _attr)
-		ref_point = this.to_tensor(ref_point)
-		var n_ref = tf.util.sizeFromShape(ref_point.shape)
-		ref_point = ref_point.reshape([1,n_ref])
-
-		_attr = this.to_tensor(_attr)
-		var n_attr = tf.util.sizeFromShape(_attr.shape)
-		_attr = _attr.reshape([1,n_attr])
-		var h = tf.concat([features, _attr], 1)
-
 		//regressor
 		const reg = await this.regressor.then( res => {return res;})
-		var h_best = h;
-		var f_pred = reg.execute(h_best);
-		var min_loss = tf.sum(tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights))
-		for (let i = 0; i < n_steps; i++) { 
-			var h_new = await this.features_after_backpropagation(h, eta, ref_point, weights)
-			
-			var f_pred_new = reg.execute(h);
-			var loss = tf.sum(tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights))
+		var features = await this.get_features(_image, _attr)
 
-			b = tf.less(loss, min_loss)
-			h_best = h_new
-			// h_best = tf.sub( h_new.mul(b), tf.mul(h_best,b.sub(1)) )
+		const h_best = tf.tidy(() => {
+			ref_point = this.to_tensor(ref_point)
+			var n_ref = tf.util.sizeFromShape(ref_point.shape)
+			ref_point = ref_point.reshape([1,n_ref])
 
-			min_loss = tf.minimum(loss, min_loss)
-			h = h_new
-		}
+			_attr = this.to_tensor(_attr)
+			var n_attr = tf.util.sizeFromShape(_attr.shape)
+			_attr = _attr.reshape([1,n_attr])
+			var h = tf.concat([features, _attr], 1)
 
-		return h_best;
+			var h_best = h;
+			var f_pred = reg.execute(h_best);
+			var min_loss = tf.sum(tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights))
+			for (let i = 0; i < n_steps; i++) { 
+				var h_new = this.features_after_backpropagation(h, eta, ref_point, reg, weights)
+				
+				var f_pred_new = reg.execute(h);
+				var loss = tf.sum(tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights))
+
+				b = tf.less(loss, min_loss)
+				h_best = h_new
+				// h_best = tf.sub( h_new.mul(b), tf.mul(h_best,b.sub(1)) )
+
+				min_loss = tf.minimum(loss, min_loss)
+				h = h_new
+			}
+			return h_best;
+		})
+
+		features.dispose()
+
+		return h_best
 	}
 
-	async features_after_backpropagation (h, eta, ref_point, weights=[2,2,1]) {
+	features_after_backpropagation (h, eta, ref_point, reg, weights=[2,2,1]) {
 
-		h = this.to_tensor(h)
-		var n_feat = tf.util.sizeFromShape(h.shape)
-		h = h.reshape([1,n_feat])
+		// const reg = await this.regressor.then( res => {return res;})
 
-		eta = this.to_tensor(eta)
+		const h_new_out = tf.tidy(() => {
+			h = this.to_tensor(h)
+			var n_feat = tf.util.sizeFromShape(h.shape)
+			h = h.reshape([1,n_feat])
 
-		ref_point = this.to_tensor(ref_point)
-		var n_ref = tf.util.sizeFromShape(ref_point.shape)
-		ref_point = ref_point.reshape([1,n_ref])
-		weights = this.to_tensor(weights)
-		weights = weights.reshape([1,n_ref])
+			eta = this.to_tensor(eta)
 
-		// Backpropagation
-		const reg = await this.regressor.then( res => {return res;})
-		const dummyloss_grad = tf.grad( _h => {
-			var f_pred = reg.execute(_h)
-			return tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights)// Only improve the design objectives and not the constraints
+			ref_point = this.to_tensor(ref_point)
+			var n_ref = tf.util.sizeFromShape(ref_point.shape)
+			ref_point = ref_point.reshape([1,n_ref])
+			weights = this.to_tensor(weights)
+			weights = weights.reshape([1,n_ref])
+
+			// Backpropagation
+			const dummyloss_grad = tf.grad( _h => {
+				var f_pred = reg.execute(_h)
+				return tf.losses.cosineDistance(ref_point, f_pred, axis=1).mul(weights)// Only improve the design objectives and not the constraints
+			})
+			const dloss_dh = dummyloss_grad(h)
+			// const delta_h = h.mul(dloss_dh)
+
+			//Adjust the features by the backpropogated error and reconstructe a new image
+			var h_new = h.sub(dloss_dh.mul(eta))
+
+			return h_new;
 		})
-		const dloss_dh = dummyloss_grad(h)
-		// const delta_h = h.mul(dloss_dh)
 
-		//Adjust the features by the backpropogated error and reconstructe a new image
-		var h_new = h.sub(dloss_dh.mul(eta))
-
-		return h_new;
+		return h_new_out
 	}
 
 	sample_normal(mu, log_var) {

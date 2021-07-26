@@ -185,6 +185,7 @@
 
 			//Convert into JS variable
 			arr = arr.squeeze().dataSync()
+			arr.map(x=>{return around(x,2)})
 
 			// Store the features being generated
 			// z_selected.push([...selected_features])

@@ -288,7 +288,7 @@ class Player(BasePlayer):
 			obj1, obj2 = truss_model.multiobjectives(x, Constants.nucFac, Constants.sel, Constants.E, Constants.r, Constants.edgelist, 1)
 			edges_des = Constants.edgelist[x.astype(bool)]
 			constr1 = truss_model.feasibility(Constants.pos, edges_des)
-			constr2 = truss_model.stability(Constants.sidenum, edges_des, Constants.pos)
+			constr2 = 0#truss_model.stability(Constants.sidenum, edges_des, Constants.pos)
 			x_img = self.subsession.convert_to_img(x)
 			image = json.dumps(x_img.tolist())
 			design = json.dumps(x.tolist())
