@@ -5,7 +5,7 @@ async function get_selected_features(curveNumber, pointNumber, which='all') {
 	let tf_features = await design_generator.get_features(image, attributes, if_mean=true)
 	let features = await tf_features.squeeze().array()
 
-	let all_features = features.concat(attributes)
+	let all_features = features.concat(attributes).map(x=>around(x,2))
 	let sel_features = all_features.filter((x,i) => Boolean(feature_ind[i]))
 
 	if (which === 'all') {

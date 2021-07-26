@@ -187,7 +187,7 @@
 			arr = arr.squeeze().dataSync()
 
 			// Store the features being generated
-			z_selected.push([...selected_features])
+			// z_selected.push([...selected_features])
 			z_generated.push([...arr])
 
 			//Select 5 features

@@ -27,7 +27,7 @@ const num_ticks= {{ Constants.num_ticks }};
 const feature_names = js_vars.feature_names;
 const features_sliders_step_values = Array.apply(null, Array(num_ticks)).map(function (x, i) { return (-2.5+i*5/num_ticks); })
 const eta_slider_step_values = Array.apply(null, Array(num_ticks)).map(function (x, i) { return (i*0.5/num_ticks).toFixed(2); })
-const eta_n_steps = 50
+const eta_n_steps = 75
 
 var current_slider_values = new Array(num_features).fill(0);
 var eta = 0;

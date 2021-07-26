@@ -55,10 +55,10 @@
 			}
 			send_data = {
 				'message':'test design',
-				'x': x,
+				'x': x.map(x_i=>around(x_i,2)),
 				'z': z,
 				'x_selected':x_selected,
-				'z_selected':z_selected,
+				// 'z_selected':z_selected,
 				'z_generated':z_generated,
 				'feature_ind':feature_ind,
 				'data_key':data_key
@@ -88,7 +88,7 @@
 				'x': x,
 				'z': z,
 				'x_selected': x_selected,
-				'z_selected': [],
+				// 'z_selected': [],
 				'z_generated':[],
 				'feature_ind':[]
 			}

@@ -180,7 +180,7 @@
 		new_features = replace(selected_features, feature_ind, current_slider_values)
 
 		// Store the features being generated
-		z_selected.push([...selected_features])
+		// z_selected.push([...selected_features])
 		z_generated.push([...new_features])
 
 		// do other things needed
