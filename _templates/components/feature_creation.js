@@ -29,7 +29,7 @@
       	yref: 'paper',
       	yanchor: 'top',
 		transition:{
-			duration:150,
+			duration:50,
 			easing: 'linear'
 		},
 		currentvalue: {
