@@ -34,7 +34,7 @@
 		},
 		currentvalue: {
 			font: {color: 'black', size: 14},
-			suffix: '                                             ',
+			suffix: '                                                     ',
 			xanchor: "right",
 			offset: -15
 		},
