@@ -29,12 +29,12 @@
       	yref: 'paper',
       	yanchor: 'top',
 		transition:{
-			duration:50,
+			duration:150,
 			easing: 'linear'
 		},
 		currentvalue: {
 			font: {color: 'black', size: 14},
-			suffix: '                                                    ',
+			suffix: '                                             ',
 			xanchor: "right",
 			offset: -15
 		},
@@ -173,26 +173,37 @@
 		plot_design(selected_curve, selected_point, 'selected')
 	}
 
+	var isSliderChange = false
+	// Do not evaluate drag or scrolling
+	document.addEventListener('mouseup', () => {
+
+	    if (isSliderChange) {
+	      	// Store the features being generated
+			// z_selected.push([...selected_features])
+			z_generated.push([...new_features])
+			// do other things needed
+			recontr_image = design_generator.decode(new_features) 
+			recontr_image.then(image => {
+					design_generator.clean_and_print(image)
+					// image.squeeze().array().then(x=> {
+					// 	update_design_visualization(x, '')
+					// 	original = get_image(selected_curve, selected_point)
+					// 	image.squeeze().sub(original).mean().print()
+					// })
+			})
+	      	isSliderChange = false
+	    }
+	})
+
 	// Do things in slider change
 	featCreat.on("plotly_sliderchange", function (e) {
-		// Retrieve current image data
+
+		// Retrieve current slider data
 		current_slider_values[e.slider.name] = Number(e.step.value)
 		new_features = replace(selected_features, feature_ind, current_slider_values)
 
-		// Store the features being generated
-		// z_selected.push([...selected_features])
-		z_generated.push([...new_features])
+		isSliderChange = true
 
-		// do other things needed
-		recontr_image = design_generator.decode(new_features) 
-		recontr_image.then(image => {
-				design_generator.clean_and_print(image)
-				// image.squeeze().array().then(x=> {
-				// 	update_design_visualization(x, '')
-				// 	original = get_image(selected_curve, selected_point)
-				// 	image.squeeze().sub(original).mean().print()
-				// })
-		})
 	})
 
 })();
