@@ -128,7 +128,7 @@ class Task2(Main):
 						' &nbsp; 1. Select a metamaterial by clicking on the tradespace plot.',
 						' &nbsp; 2. Increase or decrease the feature(s) using the "Change Feature" functionality.',
 						' &nbsp; 3. Test the generated metamaterial using the "Test metamaterial" button.',
-						' &nbsp; 4. Repeat with different feature(s)'])
+						' &nbsp; 4. Repeat with different metamaterials'])
 
 class Task3(Main):
 
@@ -140,7 +140,7 @@ class Task3(Main):
 						' &nbsp; 1. Select a metamaterial by clicking on the tradespace plot.',
 						' &nbsp; 2. Select the overall change. The higher the overall change, the more the tool explores far away from the selected metamaterial.',
 						' &nbsp; 3. Review the suggested feature changes and test using the "Test metamaterial" button.',
-						' &nbsp; 4. Repeat with different overall change '])
+						' &nbsp; 4. Repeat with different metamaterials '])
 
 class Questionnaire2(BasePage):
 
@@ -273,4 +273,4 @@ class Results(BasePage):
 			goals = self.subsession.get_goals()
 		)
 
-page_sequence = [Instructions, Pretest, Task1, Questionnaire1, Task2, Questionnaire2, Task3, Questionnaire3, Questionnaire4, Results]
+page_sequence = [Instructions, Pretest, Task3, Questionnaire3, Task2, Questionnaire2, Task1, Questionnaire1, Questionnaire4, Results]
