@@ -293,7 +293,7 @@ class Player(BasePlayer):
 			image = json.dumps(x_img.tolist())
 			design = json.dumps(x.tolist())
 
-			response = dict(design=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
+			response = dict(design_bitstring=design, obj1=obj1, obj2=obj2, constr1=constr1, constr2=constr2, image=image,
 			is_pareto=None)
 			response.update(data)
 			# Check if any element is int32

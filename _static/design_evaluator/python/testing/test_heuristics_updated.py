@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Updated heuristics.py
+Testing feasibility and connectivity functions from heuristics_updated.py
 
 @author: roshan94
 """
 import numpy as np
 import networkx as nx
 
-__all__ = ['findLineSegIntersection', 'findOrientation', 'feasibility', 'connectivity_PBC', 'orientation', 'triangles',  'density', 'threeStars', 'createGraph']
+#### FUNCTIONS
 
+# FUNCTION TO GENERATE NODAL COORDINATES BASED ON GRID SIZE
 def findLineSegIntersection(p1,q1,p2,q2):
 # This boolean function determines whether two line segments intersect,
 # given their endpoints as inputs
@@ -21,55 +22,6 @@ def findLineSegIntersection(p1,q1,p2,q2):
         intersect = False;
     
     return intersect
-
-def findSlope(x1, y1, x2, y2):
-    den = x2-x1
-    num = y2-y1
-    m = num/den if den!=0 else 1000;
-    return m
-
-def findAngles(NC, CA):
-# This function computes the orientation angle wrt x-axis for elements in CA
-# Inputs: nodal position matrix NC 
-#         Design Connectivity Array CA_des   
-    x1 = NC[CA[:,0],0]
-    y1 = NC[CA[:,0],1]
-    x2 = NC[CA[:,1],0]
-    y2= NC[CA[:,1],1]
-
-    L = np.sqrt((x2-x1)**2+(y2-y1)**2);
-    angles = np.arccos((x2-x1)/L);
-
-    return angles
-
-def createGraph(NC, CA):
-    G = nx.Graph()
-    G.add_nodes_from(range(9))
-    G.add_edges_from(CA)
-    return G
-
-def triangles(NC, CA):
-# This function returns the number of triangles in the design
-    G = createGraph(NC, CA)
-    return sum(nx.triangles(G).values())/3
-
-def density(NC, CA):
-    G = createGraph(NC, CA)
-    return nx.density(G)
-
-def threeStars(NC, CA):
-    G = createGraph(NC, CA)
-    stars = np.array(list(dict(nx.degree(G)).values()))
-    return sum(stars==3)
-
-def orientation(NC, CA, target=[0, 20]):
-# This function returns the number of elements with orientation between the given range
-# Inputs: nodal position matrix NC 
-#         Design Connectivity Array CA_des
-#          End angles in degrees range = [deg deg]; Angles should be between [0, 180] degrees
-    c= np.pi/180
-    angles = findAngles(NC, CA)
-    return sum((angles>=c*target[0]) & (angles<=c*target[1]))
 
 def findOrientation(p,q,r):
 # This function finds the orientation of an ordered triplet (p, q, r)
@@ -87,6 +39,32 @@ def findOrientation(p,q,r):
     
     return orientation
 
+def findSlope(x1, y1, x2, y2):
+    den = x2-x1
+    num = y2-y1
+    m = num/den if den!=0 else 1000;
+    return m
+
+def createGraph(NC, CA):
+    G = nx.Graph()
+    G.add_nodes_from(range(9))
+    G.add_edges_from(CA)
+    return G
+
+def generateNC(sel,sidenum):
+    notchvec = np.linspace(0,1,sidenum);
+    NC = [];
+    for i in range(sidenum):
+        # y_start = i%2
+        # direction = 1-2*(i%2)
+        for j in range(sidenum):
+            NC.append([notchvec[i], notchvec[j]]);
+    
+    NC = sel*np.array(NC);
+
+    return NC
+
+# FUNCTION TO COMPUTE DESIGN FEASIBILITY
 def feasibility(NC,CA_des,sidenum):
 # This function computes the feasibility score for a design 
 # Inputs: nodal position matrix NC 
@@ -100,7 +78,7 @@ def feasibility(NC,CA_des,sidenum):
     # Develop 4xM matrix of line segment endpoint coordinates, where M is 
     #   the number of truss members.  Each row of format (x1,y1,x2,y2),
     #   where point 1 is leftmost, point 2 is rightmost
-    PosA = np.vstack([ NC[SortedCA[:,0],0], NC[SortedCA[:,0],1], NC[SortedCA[:,1],0], NC[SortedCA[:,1],1] ]).T;
+    PosA = np.vstack([ NC[SortedCA[:,0]-1,0], NC[SortedCA[:,0]-1,1], NC[SortedCA[:,1]-1,0], NC[SortedCA[:,1]-1,1] ]).T;
 
     # Loop through each pair of elements
     for i in range(PosA.shape[0]):
@@ -195,12 +173,12 @@ def feasibility(NC,CA_des,sidenum):
             
     # FOURTH CONSTRAINT: Metamaterial unit cell must be connected to its neighbouring unit cells. (Intercell connectivity)
     # Check if design has at least one repeated external contact point in the x and y directions
-    left_edgenodes = np.arange(1,sidenum-1)
-    right_edgenodes = np.arange(((sidenum**2)-sidenum+1),(sidenum**2-1))
-    bottom_edgenodes = np.arange(sidenum,((sidenum**2)-sidenum),sidenum)
-    top_edgenodes = np.arange(2*sidenum-1,sidenum**2-1,sidenum)
+    left_edgenodes = np.arange(2,sidenum)
+    right_edgenodes = np.arange(((sidenum**2)-sidenum+2),((sidenum**2)))
+    bottom_edgenodes = np.arange(sidenum+1,((sidenum**2)-sidenum),sidenum)
+    top_edgenodes = np.arange(2*sidenum,sidenum**2,sidenum)
     
-    corner_nodes = np.array([0,sidenum-1,((sidenum**2)-sidenum),sidenum**2-1])
+    corner_nodes = np.array([1,sidenum,((sidenum**2)-sidenum+1),sidenum**2])
     lr_nodepairs = np.vstack((left_edgenodes,right_edgenodes))
     tb_nodepairs = np.vstack((bottom_edgenodes,top_edgenodes))
     
@@ -265,8 +243,8 @@ def connectivity_PBC(sidenum,CA,NC,sel):
     ## NEW
     for i in range(NC.shape[0]):
         # Isolate members starting/ending at current node
-        indiOne = [m for m in range(len(CA_col1)) if CA_col1[m] == i]
-        indiTwo = [m for m in range(len(CA_col2)) if CA_col2[m] == i]
+        indiOne = [m for m in range(len(CA_col1)) if CA_col1[m] == i+1]
+        indiTwo = [m for m in range(len(CA_col2)) if CA_col2[m] == i+1]
         mCAone = CA[indiOne]
         mCAtwo = CA[indiTwo]
         
@@ -298,29 +276,29 @@ def connectivity_PBC(sidenum,CA,NC,sel):
         elif ((ND[i,0] == 0) and (ND[i,1] == 1)): # node in top left corner
             corner_node = True
             # Identify opposite node
-            opp_node = i+((sidenum-1)**2)
+            opp_node = i+((sidenum-1)**2)+1
             
             # Identify adjacent nodes
-            adjnode_b = i-(sidenum-1)
-            adjnode_a = i+(sidenum*(sidenum-1))
+            adjnode_b = i-(sidenum-1)+1
+            adjnode_a = i+(sidenum*(sidenum-1))+1
             
         elif ((ND[i,0] == 1) and (ND[i,1] == 0)): # node in bottom right corner
             corner_node = True
             # Identify opposite node
-            opp_node = i-((sidenum-1)**2)
+            opp_node = i-((sidenum-1)**2)+1
             
             # Identify adjacent nodes
             adjnode_b = i+sidenum
-            adjnode_a = i-(sidenum*(sidenum-1))
+            adjnode_a = i-(sidenum*(sidenum-1))+1
             
         elif ((ND[i,0] == 1) and (ND[i,1] == 1)): # node in top right corner
             corner_node = True
             # Identify opposite node
-            opp_node = i-((sidenum**2)-1)
+            opp_node = i-((sidenum**2)-1)+1
             
             # Identify adjacent nodes
             adjnode_b = i-(sidenum-1)+1
-            adjnode_a = i-(sidenum*(sidenum-1))
+            adjnode_a = i-(sidenum*(sidenum-1))+1
             
         if corner_node:
             # Find elements connecting to/from opp_node
@@ -381,10 +359,10 @@ def connectivity_PBC(sidenum,CA,NC,sel):
         
             # Based on location of node i relative to adjacent nodes, add additional connections
             for q in range(onCA_b.shape[0]):
-                if ((ND[onCA_b[q,0],0] != ND[onCA_b[q,1],0]) and (ND[onCA_b[q,0],1] != ND[onCA_b[q,1],1])):
+                if ((ND[onCA_b[q,0]-1,0] != ND[onCA_b[q,1]-1,0]) and (ND[onCA_b[q,0]-1,1] != ND[onCA_b[q,1]-1,1])):
                     mCA = np.vstack((mCA,onCA_b[q,:]))
                     N[i] = N[i] + 1
-                if ((ND[onCA_a[q,0],0] != ND[onCA_a[q,1],0]) and (ND[onCA_a[q,0],1] != ND[onCA_a[q,1],1])):
+                if ((ND[onCA_a[q,0]-1,0] != ND[onCA_a[q,1]-1,0]) and (ND[onCA_a[q,0]-1,1] != ND[onCA_a[q,1]-1,1])):
                     mCA = np.vstack((mCA,onCA_a[q,:]))
                     N[i] = N[i] + 1
                 
@@ -397,22 +375,22 @@ def connectivity_PBC(sidenum,CA,NC,sel):
         if ((ND[i,0] == 0) and (not corner_node)): # edge node is on left side
             edge_node = True
             # Identify opposite node
-            opp_node = i+(sidenum*(sidenum-1))
+            opp_node = i+(sidenum*(sidenum-1))+1
             
         elif ((ND[i,0] == 1) and (not corner_node)): # edge node is on right side
             edge_node = True
             # Identify opposite node
-            opp_node = i-(sidenum*(sidenum-1))
+            opp_node = i-(sidenum*(sidenum-1))+1
             
         elif ((ND[i,1] == 0) and (not corner_node)): # edge node is on bottom side
             edge_node = True
             # Identify opposite node
-            opp_node = i+sidenum-1
+            opp_node = i+sidenum
             
         elif ((ND[i,1] == 1) and (not corner_node)): # edge node is on top side
             edge_node = True
             # Identify opposite node
-            opp_node = i-(sidenum-1)
+            opp_node = i-(sidenum-1)+1
         
         if edge_node:
             # Find elements connecting to/from opp_node
@@ -436,7 +414,7 @@ def connectivity_PBC(sidenum,CA,NC,sel):
             
             # Based on location of node i/opp_node, add additional elements
             for q in range(onCA.shape[0]):
-                if (ND[onCA[q,0],1] != ND[onCA[q,1],1]):
+                if (ND[onCA[q,0]-1,1] != ND[onCA[q,1]-1,1]):
                     mCA = np.vstack((mCA,onCA[q,:]))
                     N[i] = N[i] + 1
             
@@ -448,3 +426,14 @@ def connectivity_PBC(sidenum,CA,NC,sel):
                 return connectivityScore
     
     return np.around(connectivityScore,2)
+
+#### TESTING FUNCTIONS ON RANDOM DESIGN 
+
+sel = 10e-3
+sidenum = 3
+CA = np.array([[1,2],[2,3],[1,4],[1,5],[2,5],[3,5],[3,6],[4,5],[5,6],[4,7],[5,7],[5,8],[5,9],[6,9],[7,8],[8,9]])
+CA = CA[np.argsort(CA[:,0])]
+NC = generateNC(sel, sidenum)
+
+feas = feasibility(NC,CA,sidenum) # expected value is 1
+conn = connectivity_PBC(sidenum,CA,NC,sel) # expected value is 1

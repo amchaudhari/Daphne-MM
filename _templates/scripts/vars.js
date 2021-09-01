@@ -1,5 +1,3 @@
-// Page instructions
-const page_instructions = js_vars.page_instructions
 
 // Global variables
 var data = js_vars.data; // Historic data; constant
@@ -74,5 +72,19 @@ var z_generated = []
 
 //Reconstructed image shown temporarily on the screen
 var recontr_image = Promise.resolve([]);
+
+//Radius and material options
+const radii = js_vars.radii;
+const n_radii = Object.keys(radii).length
+const materials = js_vars.materials;
+
+//Default thickness of links
+var default_radius = 0.0002 //meters
+var default_width = 10
+var width_radius_ratio = default_width/default_radius
+
+// Number of top scores to show
+var scoreboard = Object.values(data['scoreboard'])
+const max_ranks = 5;
 
 

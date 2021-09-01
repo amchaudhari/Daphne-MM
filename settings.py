@@ -22,6 +22,19 @@ SESSION_CONFIGS = [
 		    """
 		),
 		dict(
+			name='outreach_activity',
+			display_name="Metamaterial Design - Outreach",
+			num_demo_participants=3,
+			app_sequence=['outreach_activity'],
+			task_duration=180*60,
+			instr_duration=5*60,
+			doc=
+			"""
+		    	| 'task_duration': Number of seconds user spends on the task\n
+		    	| 'instr_duration': Minimum number of seconds a user should reads instructions\n
+		    """
+		),
+		dict(
 			name='goal_orientation_expt',
 			display_name="Metamaterial Design - Effects of Goal Orientation",
 			num_demo_participants=3,

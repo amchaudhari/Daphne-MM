@@ -14,7 +14,7 @@ def repeatable_des(_X):
 
     return x
 
-def show_meshplot(nodes, elements, x, ifMatrix=False, ax=None, plotNodes=False):
+def show_meshplot(nodes, elements, x, r, ifMatrix=False, ax=None, plotNodes=False):
     if not ax: ax=plt.gca()
         
     y = nodes[:,0]
@@ -24,7 +24,7 @@ def show_meshplot(nodes, elements, x, ifMatrix=False, ax=None, plotNodes=False):
         idx = np.array(np.nonzero(np.triu(x))).T
         widths = (elements[:,None]==idx).all(-1).any(-1).astype(int)
     else:
-        widths=x
+        widths= r
 
     #https://stackoverflow.com/questions/49640311/matplotlib-unstructered-quadrilaterals-instead-of-triangles
     def quatplot(y,z, quatrangles, ax=None, **kwargs):

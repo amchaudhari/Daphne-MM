@@ -23,6 +23,11 @@
 			x_selected = []
 			z_selected = []
 			z_generated = []
+
+			if ("{{ Constants.name_in_url }}" === "outreach_activity") {
+				scoreboard = Object.values(input['scoreboard'])
+				update_scoreboard(scoreboard)
+			}
 		}
 
 	}

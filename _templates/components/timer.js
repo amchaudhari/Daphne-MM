@@ -1,4 +1,10 @@
 {	
+	// Page instructions
+	var page_instructions = js_vars.page_instructions
+	if (page_instructions === undefined){
+		page_instructions = ''
+	}
+
 	// Add the link to instructions
 	var timer = document.querySelector(".otree-timer p");
 	a = document.createElement("a");

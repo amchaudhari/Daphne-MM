@@ -1,4 +1,17 @@
 {
+	var radius_menu = [];
+	for (var i = 0; i < n_radii; i++) {
+		let key = (' ' + Object.keys(radii)[i]).slice(1)
+		let value = radii[key]
+		radius_menu.push({
+			title: key,
+			action: function(d, j) {
+				addEdge.call(this, d)
+				changeRadius.call(this, d, width_radius_ratio*value, value)
+			}
+		});
+	}
+
 	// set the dimensions and margins of the graph
 	var margin = {top: 10, right: 20, bottom: 30, left: 100},
 	  	width = 350 - margin.left - margin.right,
@@ -42,6 +55,7 @@
 	  	.style("opacity", 0)
 	  	.on("mouseover", edgeOver)
 	  	.on("mouseout", edgeOut)
+	  	.on("contextmenu", d3.contextMenu(radius_menu) )
 	  	.on("click", addEdge)
 	  	.on("dblclick", deleteEdge);
 
@@ -53,11 +67,12 @@
 		.attr("y1", function (d) {return height*d.source.y})
 		.attr("x2", function (d) {return width*d.target.x})
 		.attr("y2", function (d) {return height*d.target.y})
-	  	.style("stroke-width", "12px")
+		.attr("radius", default_radius)
+	  	.style("stroke-width", (default_width)+'px')
 	  	.style("stroke", "black")
 	  	.style("opacity", 0.5)
-	  	.style("pointer-events", "none");
-		
+	  	.style("pointer-events", "none")
+
 		var nodeEnter = svg.selectAll("g.node")
 		.data(nodes)
 		.enter()
@@ -94,51 +109,59 @@
 		.style("pointer-events", "none")
 
 		force.start();
-		
-		function deleteEdge(d) {
-			d3.select(this.nextSibling).classed('hide', true);
-		}
-
-		function addEdge(d) {
-			d3.select(this.nextSibling).classed('hide', false);
-		}
-
-		function edgeOver(d) {
-			d3.select(this).style("opacity", 0.75);
-		}
-
-		function edgeOut() {
-			d3.selectAll("line.highlight").style("opacity", 0);
-		}
-
-		function updateNetwork() {}
 	}
 
-	// document.getElementById("testDesign").addEventListener("click", onclickTest, false);
-	// function onclickTest() {
-	// 	// Return 0 for inactive link and 1 for active link
-	// 	var links = d3.selectAll('line.link')[0]
-	// 	x = links.map(function(d) {
-	// 		ret = d3.select(d).classed("hide")
-	// 		ret = ret ? 0 : 1
-	// 		return ret
-	// 	})
+	function deleteEdge(d) {
+		d3.select(this.nextSibling).classed('hide', true);
+	}
 
-	// 	send_data = {
-	// 		'x': x,
-	// 		'z':'',
-	// 		'points_checked':points_checked
-	// 	}
+	function changeRadius(d, width, radius) {
+		d3.select(this.nextSibling).style('stroke-width', (width)+'px');
+		d3.select(this.nextSibling).attr('radius', radius);
+	}
 
-	// 	if (sum(x) > 0) {
-	// 		liveSend(send_data)
-	// 	} else {
-	// 		alert('Select atleast one link to test.')
-	// 	}
-	// }
+	function addEdge(d) {
+		d3.select(this.nextSibling).classed('hide', false)
+		changeRadius.call(this, d, default_width, default_radius)
+	}
+
+	function edgeOver(d) {
+		d3.select(this).style("opacity", 0.75);
+	}
+
+	function edgeOut() {
+		d3.selectAll("line.highlight").style("opacity", 0);
+	}
+
+	function updateNetwork() {}
 
 	document.getElementById("clearAll").addEventListener("click", onclickClear, false);
 	function onclickClear(){
 		d3.selectAll("line.link").classed('hide', true);
+	}
+
+	var div1 = document.getElementById("all_radii")
+	if (div1 != undefined ) {
+		div1.addEventListener("change", onchangeChangeAllRadii, false);
+	}
+	function onchangeChangeAllRadii(){
+		if (div1 != undefined ) {
+			// Update all links
+			d3.selectAll("line.highlight").each(function(d){
+				changeRadius.call(this, d, width_radius_ratio*div1.value, div1.value)
+			});
+		}
+	}
+
+	var div2 = document.getElementById("default_radius")
+	if (div2 != undefined ) {
+		div2.addEventListener("change", onchangeDefaultThickness, false);
+	}
+	function onchangeDefaultThickness(){
+		if (div2 != undefined ) {
+			//change the default thickness parameter
+			default_radius = div2.value
+			default_width = width_radius_ratio*default_radius
+		}
 	}
 }

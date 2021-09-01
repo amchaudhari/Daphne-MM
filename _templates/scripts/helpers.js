@@ -1,4 +1,46 @@
 	// Helper functions
+
+// ---------------------------------------------------------------
+
+function update_scoreboard(_scoreboard) {
+
+	// Add the link to instructions
+	const scoreboard_div = document.getElementById("ScoreboardTable");
+
+   	_scoreboard = _scoreboard.sort((a, b) => (a.rank > b.rank) ? 1 : -1)
+
+   	//set header of table
+	let table = `
+		<table class="table table-bordered table-hover table-sm" id = "myTable">
+		  <thead class="thead-light">
+		    <tr>
+		    	<th scope="col"> Rank </th>
+		      <th scope="col"> Name </th>
+		      <th scope="col"> Score* </th>
+		    </tr>
+		  </thead>
+		  <tfoot><tr><td colspan="3"> *Score is equal to the hypervolume, i.e., area enclosed by Pareto points and point [1,0] </td></tr></tfoot>
+		  <tbody>
+		`;
+		//create//append rows
+		for(i = 0; i < Math.min(_scoreboard.length,max_ranks); i++){
+			row = _scoreboard[i]
+			// td_color = CellColor(change,i,3)
+		    table = table +
+		    `<tr>
+		      <td scope="row"> ${row.rank} </td>
+		      <td>${row.name}</td>
+		      <td>${row.score.toFixed(3)}</td>
+		    </tr>`
+		}
+		//close off table
+		table = table +
+		  `</tbody>
+		  </table>`;
+	
+	scoreboard_div.innerHTML = table;
+}
+
 // -------------------------------------------------------------------------------------
 
 	// TRADESPACE PLOT
@@ -23,7 +65,11 @@
 			return ' '
 		} else {
 			var hover_text = _data.constr1.map(function(x,i){
-				return '<br>{{Constants.constraints.0}}: ' + label_constr(x.toFixed(1)) + '<br>Design #' + (i+1).toFixed(0) + data_str
+				text = '<br>{{Constants.constraints.0}}: ' + label_constr(x.toFixed(1)) 
+						+ '<br>{{Constants.constraints.1}}: ' + _data.constr2[i]
+						+ '<br>Design #' + (i+1).toFixed(0) + data_str
+
+				return text
 			});
 			return hover_text
 		}
@@ -256,7 +302,7 @@
 
 		// Create a 3x3 grid layout for metamaterial visualization
 	function design_grid(image){
-		n=-2
+		n=-5//Must be negative smaller than equal to -1
 		alpha = 0.3
 
 		x_trim = image.slice(1,-1).map(function(el, i) {return el.slice(1,-1)})
@@ -288,18 +334,19 @@
 		}
 		if (pointNumber < _data.obj1.length) {
 			text = 'Design #' + (pointNumber+1) + data_str + 
-					'<br>{{Constants.objectives.0}}: ' + _data.obj1[pointNumber].toFixed(2) + '  {{Constants.objectives.1}}: ' + _data.obj2[pointNumber].toFixed(2) +
-					'<br>{{Constants.constraints.0}}: ' + label_constr(_data.constr1[pointNumber].toFixed(1)) // + '  {{Constants.constraints.1}}: ' +  _data.constr2[pointNumber].toFixed(1),
+					'<br>{{Constants.objectives.0}}: ' + _data.obj1[pointNumber].toFixed(2) + '  {{Constants.objectives.1}}: ' + _data.obj2[pointNumber].toFixed(2) 
+					+ '<br>{{Constants.constraints.0}}: ' + label_constr(_data.constr1[pointNumber].toFixed(1)) 
+					+ '<br>{{Constants.constraints.1}}: ' +  _data.constr2[pointNumber]
 		} else {
 			text = ""
 		}
 		annotation = {
 			xref: 'paper',
 			yref: 'paper',
-			x: 1,
-			xanchor: 'right',
-			y: -0.25,
-			yanchor: 'bottom',
+			x: -0.15,
+			xanchor: 'left',
+			y: 1.35,
+			yanchor: 'top',
 			text: text,
 			showarrow: false,
 			font: {

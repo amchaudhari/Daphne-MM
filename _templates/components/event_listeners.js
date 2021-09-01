@@ -5,9 +5,11 @@
 		// design bitstring data x
 		let x = []
 		let z = ''
+		let r = [] //radii
+		let E = [] //material
 
 		// Check if the current app is the main app
-		if ("{{ Constants.name_in_url }}" === "main" ||  "{{ Constants.name_in_url }}" === "automation_expt") {
+		if ("{{ Constants.name_in_url }}" === "main" ||  "{{ Constants.name_in_url }}" === "automation_expt" ) {
 			if ( activeTaskId === "design-tab") {
 				// Return 0 for inactive link and 1 for active link
 				var links = d3.selectAll('line.link')[0]
@@ -65,6 +67,39 @@
 			}
 		}
 
+		//Check if the current app is outreach_activity
+		if ("{{ Constants.name_in_url }}" === "outreach_activity") {
+			if ( activeTaskId === "design-tab") {
+				// Return 0 for inactive link and 1 for active link
+				var links = d3.selectAll('line.link')[0]
+				x = links.map(function(d) {
+					ret = d3.select(d).classed("hide")
+					ret = ret ? 0 : 1
+					return ret
+				})
+				r = links.map(function(d) {
+					ret1 = Number(d3.select(d).attr("radius"))
+					ret2 = d3.select(d).classed("hide")
+					ret = ret2 ? 0 : ret1
+					return ret
+				})
+				var div = document.getElementById("material")
+				E = Number(div.value)
+			}
+			send_data = {
+				'message':'test design',
+				'x': x.map(x_i=>around(x_i,2)),
+				'z': z,
+				'x_selected':x_selected,
+				'r':r,
+				'E':E,
+				// 'z_selected':z_selected,
+				'z_generated':z_generated,
+				'feature_ind':feature_ind,
+				'data_key':data_key
+			}
+		}
+
 		// Check if the current app is for the goal orientation experiment
 		if ("{{ Constants.name_in_url }}" === 'goal_orientation_expt') {
 			if ( activeTaskId === "design-tab") {
@@ -88,7 +123,6 @@
 				'x': x,
 				'z': z,
 				'x_selected': x_selected,
-				// 'z_selected': [],
 				'z_generated':[],
 				'feature_ind':[]
 			}

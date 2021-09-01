@@ -20,9 +20,10 @@
 			showgrid: false
 		},
 		margin: {
-			t: 25,
+			t: 100,
+			b:50,
 			r: 5,
-			pad: 10
+			pad: 5
 		},
 		annotations: [get_annotation(data, selected_curve, selected_point)]
 	};
