@@ -1,6 +1,7 @@
 otree==3.3.6
 psycopg2==2.8.4
 numpy==1.18.5
+scipy==1.7.1
 pandas==1.0.5
 matplotlib==3.2.2
 networkx==2.4
