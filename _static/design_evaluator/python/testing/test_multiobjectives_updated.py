@@ -9,6 +9,16 @@ import math
 import statistics
 from itertools import combinations 
 
+
+# data = pd.read_csv('data_ref.csv')
+# design_radii = data.iloc[:,0:28]
+# design_bitstring = design_radii.values>0
+# design_bitstring = design_bitstring.astype('int').tolist()
+# data['design_radii']=design_radii.values.tolist()
+# data['design_bitstring'] = design_bitstring
+# data.to_csv('data_ref.csv')
+
+
 #### FUNCTIONS
 
 # Alternate multiobjectives function

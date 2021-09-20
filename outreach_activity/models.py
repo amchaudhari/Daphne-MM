@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import PIL.Image as Image
 import warnings
 import os
-from pygmo import hypervolume
+from _static.hv import HyperVolume as hypervolume
 from scipy.stats import rankdata
 
 warnings.filterwarnings('ignore')
@@ -122,10 +122,21 @@ class Subsession(BaseSubsession):
 		if self.round_number == 1:
 			cwd = os.getcwd()
 			# Reading data #Columns = design stiffness	volume_fraction	feasibility	stability vertical_lines horizontal_lines	diagonals	triangles	three_stars	image
-			data = pd.read_csv("./_static/metamaterial_designs_normalized_filtered1.csv")
+			data = pd.read_csv("./_static/"+Constants.name_in_url+"/data_ref.csv")
 			data = data.drop_duplicates(subset=['obj1', 'obj2'], ignore_index=True)
 			data = data.sort_values(['obj1', 'obj2'], ascending=[True, True], ignore_index=True)
 			n_data = data.shape[0]
+
+			#Check if image data available
+			if 'image' not in data.columns:
+				x = data['design_bitstring'].values
+				r = data['design_radii'].values
+				image = []
+				for i in range(n_data):
+					im = self.convert_to_img(json.loads(x[i]), json.loads(r[i]))
+					image.append(json.dumps(im.tolist()))
+				data['image']=image
+				data.to_csv("./_static/"+Constants.name_in_url+"/data_ref.csv")
 
 			# Adding pareto front information
 			costs = data[['obj1', 'obj2']].values*np.array([[-1, 1]]) #Maximize stiffness and minimize volume fraction
@@ -141,7 +152,7 @@ class Subsession(BaseSubsession):
 			self.session.vars = data.to_dict('list')
 
 			#Storing the reference hypervolume
-			ref_hv = hypervolume(costs[is_constr1]).compute(Constants.ref_point)
+			ref_hv = hypervolume(Constants.ref_point).compute(costs[is_constr1])
 			self.session.vars['reference_hv'] = ref_hv
 
 			#Initialize initial ranks and scores
@@ -226,7 +237,7 @@ class Player(BasePlayer):
 		self.session.vars['is_pareto_response' + str(self.id_in_subsession)] =  is_pareto[0:n_data].tolist()
 		
 		#Calculate the hypervolume improvement
-		hv = hypervolume(costs[if_constr1]).compute(Constants.ref_point)
+		hv = hypervolume(Constants.ref_point).compute(costs[if_constr1])
 		self.participant.vars['hv'] = np.around(hv,3)
 
 		#Store boolean on whether designs are unique
